@@ -47,6 +47,7 @@ def get_main_menu_inline_keyboard(
     info_button = InlineKeyboardButton(
         text=_(key="menu_info_inline"),
         callback_data="main_action:info")
+    builder.row(info_button)
 
     language_button = InlineKeyboardButton(
         text=_(key="menu_language_settings_inline"),
