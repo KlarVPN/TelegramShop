@@ -637,7 +637,7 @@ async def info_callback_handler(
     _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs
                                            ) if i18n else key
 
-    reply_markup = get_info_keyboard(i18n, current_lang)
+    reply_markup = get_info_keyboard(i18n, settings, current_lang)
 
     target_message_obj = event.message if isinstance(
         event, types.CallbackQuery) else event
