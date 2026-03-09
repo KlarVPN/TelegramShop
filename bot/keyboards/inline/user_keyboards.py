@@ -16,15 +16,18 @@ def get_main_menu_inline_keyboard(
     if show_trial_button and settings.TRIAL_ENABLED:
         builder.row(
             InlineKeyboardButton(text=_(key="menu_activate_trial_button"),
-                                 callback_data="main_action:request_trial"))
+                                 callback_data="main_action:request_trial",
+                                 icon_custom_emoji_id="5296372434692234934"))
 
     builder.row(
         InlineKeyboardButton(text=_(key="menu_subscribe_inline"),
-                             callback_data="main_action:subscribe"))
+                             callback_data="main_action:subscribe",
+                             icon_custom_emoji_id="5372874186010158207"))
     builder.row(
         InlineKeyboardButton(
             text=_(key="menu_my_subscription_inline"),
             callback_data="main_action:my_subscription",
+            icon_custom_emoji_id="5373346752671804066"
         )
     )
 
@@ -34,7 +37,8 @@ def get_main_menu_inline_keyboard(
     if settings.REFERRAL_ENABLED:
         referral_button = InlineKeyboardButton(
             text=_(key="menu_referral_inline"),
-            callback_data="main_action:referral")
+            callback_data="main_action:referral",
+            icon_custom_emoji_id="5235695112419303615")
         builder.row(referral_button, promo_button)
     else:
         builder.row(promo_button)
@@ -46,7 +50,8 @@ def get_main_menu_inline_keyboard(
     if settings.SERVER_STATUS_URL:
         status_button_list.append(
             InlineKeyboardButton(text=_(key="menu_server_status_button"),
-                                 url=settings.SERVER_STATUS_URL))
+                                 url=settings.SERVER_STATUS_URL,
+                                 icon_custom_emoji_id="5318972874726339331"))
 
     if status_button_list:
         builder.row(language_button, *status_button_list)
@@ -56,12 +61,14 @@ def get_main_menu_inline_keyboard(
     if settings.SUPPORT_LINK:
         builder.row(
             InlineKeyboardButton(text=_(key="menu_support_button"),
-                                 url=settings.SUPPORT_LINK))
+                                 url=settings.SUPPORT_LINK,
+                                 icon_custom_emoji_id="5296258510684712098"))
 
     if settings.TERMS_OF_SERVICE_URL:
         builder.row(
             InlineKeyboardButton(text=_(key="menu_terms_button"),
-                                 url=settings.TERMS_OF_SERVICE_URL))
+                                 url=settings.TERMS_OF_SERVICE_URL,
+                                 icon_custom_emoji_id="5298853345241358103"))
 
     return builder.as_markup()
 
@@ -363,6 +370,7 @@ def get_channel_subscription_keyboard(
         builder.button(
             text=_(key="channel_subscription_verify_button"),
             callback_data="channel_subscription:verify",
+            style='success'
         )
         has_buttons = True
 
