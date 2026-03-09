@@ -64,58 +64,58 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
 
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    status_button_list = []
-    if settings.SERVER_STATUS_URL:
-        status_button_list.append(
-            InlineKeyboardButton(text=_(key="menu_server_status_button"),
-                                 url=settings.SERVER_STATUS_URL,
-                                 icon_custom_emoji_id="5318972874726339331"))
 
-    if status_button_list:
-        builder.row(*status_button_list)
-    
+    bot_buttons = []
+
     if settings.SUPPORT_LINK:
-        builder.row(
-            InlineKeyboardButton(text=_(key="menu_support_button"),
+        bot_buttons.append(InlineKeyboardButton(text=_(key="menu_support_button"),
                                  url=settings.SUPPORT_LINK,
                                  icon_custom_emoji_id="5296258510684712098"))
 
-    if settings.DOCS_URL:
-        builder.row(
-            InlineKeyboardButton(text=_(key="menu_docs_button"),
-                                 url=settings.DOCS_URL,
+
+    if settings.REQUIRED_CHANNEL_LINK:
+        bot_buttons.append(
+            InlineKeyboardButton(text=_(key="menu_channel_button"),
+                                 url=settings.REQUIRED_CHANNEL_LINK,
                                  icon_custom_emoji_id="5296258510684712098"))
 
-    buttons = []
+    if bot_buttons:
+        builder.row(*bot_buttons)
+
+    web_buttons = []
 
     if settings.WEB_URL:
-        buttons.append(InlineKeyboardButton(
+        web_buttons.append(InlineKeyboardButton(
             text=_(key="menu_web_button"),
             url=settings.WEB_URL,
             icon_custom_emoji_id="5296258510684712098"
         ))
 
     if settings.DOCS_URL:
-        buttons.append(InlineKeyboardButton(
+        web_buttons.append(InlineKeyboardButton(
             text=_(key="menu_docs_button"),
             url=settings.DOCS_URL,
             icon_custom_emoji_id="5296258510684712098"
         ))
 
-    if buttons:
-        builder.row(*buttons)
+    if web_buttons:
+        builder.row(*web_buttons)
 
-    if settings.REQUIRED_CHANNEL_LINK:
-        builder.row(
-            InlineKeyboardButton(text=_(key="menu_channel_button"),
-                                 url=settings.REQUIRED_CHANNEL_LINK,
-                                 icon_custom_emoji_id="5296258510684712098"))
+    other_buttons = []
+
+    if settings.SERVER_STATUS_URL:
+        other_buttons.append(InlineKeyboardButton(text=_(key="menu_server_status_button"),
+                                 url=settings.SERVER_STATUS_URL,
+                                 icon_custom_emoji_id="5318972874726339331"))
 
     if settings.TERMS_OF_SERVICE_URL:
-        builder.row(
+        other_buttons.append(
             InlineKeyboardButton(text=_(key="menu_terms_button"),
                                  url=settings.TERMS_OF_SERVICE_URL,
                                  icon_custom_emoji_id="5298853345241358103"))
+
+    if other_buttons:
+        builder.row(*other_buttons)
 
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
                    callback_data="main_action:back_to_main"))
