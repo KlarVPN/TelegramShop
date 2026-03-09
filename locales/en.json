@@ -6,6 +6,7 @@
   "channel_subscription_verified_success": "<tg-emoji emoji-id=\"5339256974473199519\">👍</tg-emoji> Subscription confirmed! You're good to go.",
   "menu_activate_trial_button": "Free Trial",
   "menu_subscribe_inline": "Purchase",
+  "menu_channel_button": "Telegram Channel",
   "menu_my_subscription_inline": "Subscription",
   "no_subscription_options_available": "Subscription issuance is not configured by the bot administrator",
   "menu_referral_inline": "Referrals",

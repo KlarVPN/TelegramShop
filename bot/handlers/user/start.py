@@ -646,7 +646,7 @@ async def info_callback_handler(
             await event.answer(_("error_occurred_try_again"), show_alert=True)
         return
 
-    photo = FSInputFile("images/menu.png")
+    photo = FSInputFile("images/info.png")
     
 
     if isinstance(event, types.CallbackQuery):

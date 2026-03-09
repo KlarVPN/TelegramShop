@@ -46,7 +46,9 @@ def get_main_menu_inline_keyboard(
 
     info_button = InlineKeyboardButton(
         text=_(key="menu_info_inline"),
-        callback_data="main_action:info")
+        callback_data="main_action:info",
+        icon_custom_emoji_id="5373318693650458620"
+    )
     builder.row(info_button)
 
     language_button = InlineKeyboardButton(
@@ -78,16 +80,24 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
                                  url=settings.SUPPORT_LINK,
                                  icon_custom_emoji_id="5296258510684712098"))
 
-    if settings.WEB_URL:
-        builder.row(
-            InlineKeyboardButton(text=_(key="menu_web_button"),
-                                 url=settings.WEB_URL,
-                                 icon_custom_emoji_id="5296258510684712098"))
-
     if settings.DOCS_URL:
         builder.row(
             InlineKeyboardButton(text=_(key="menu_docs_button"),
                                  url=settings.DOCS_URL,
+                                 icon_custom_emoji_id="5296258510684712098"))
+
+    builder.row([
+        InlineKeyboardButton(text=_(key="menu_web_button"),
+                             url=settings.WEB_URL,
+                             icon_custom_emoji_id="5296258510684712098") if settings.WEB_URL else '',
+        InlineKeyboardButton(text=_(key="menu_docs_button"),
+                             url=settings.DOCS_URL,
+                             icon_custom_emoji_id="5296258510684712098") if settings.DOCS_URL else ''])
+
+    if settings.REQUIRED_CHANNEL_LINK:
+        builder.row(
+            InlineKeyboardButton(text=_(key="menu_channel_button"),
+                                 url=settings.REQUIRED_CHANNEL_LINK,
                                  icon_custom_emoji_id="5296258510684712098"))
 
     if settings.TERMS_OF_SERVICE_URL:
