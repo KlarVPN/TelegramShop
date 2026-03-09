@@ -33,7 +33,8 @@ def get_main_menu_inline_keyboard(
 
     promo_button = InlineKeyboardButton(
         text=_(key="menu_apply_promo_button"),
-        callback_data="main_action:apply_promo")
+        callback_data="main_action:apply_promo",
+        icon_custom_emoji_id="5301173701323028420")
     if settings.REFERRAL_ENABLED:
         referral_button = InlineKeyboardButton(
             text=_(key="menu_referral_inline"),

@@ -21,12 +21,11 @@ services:
     container_name: klar-rm-shop-db
     hostname: klar-rm-shop-db
     environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_DB}
-      POSTGRES_HOST: ${DATABASE_HOST}
-      POSTGRES_PORT: ${DATABASE_PORT}
-    environment:
+      - POSTGRES_USER: ${DATABASE_USER}
+      - POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      - POSTGRES_DB: ${DATABASE_DB}
+      - POSTGRES_HOST: ${DATABASE_HOST}
+      - POSTGRES_PORT: ${DATABASE_PORT}
       - TZ=UTC
     volumes:
       - klar-rm-shop-db-data:/var/lib/postgresql/data

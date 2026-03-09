@@ -4,7 +4,6 @@
   "channel_subscription_verify_button": "Check subscription",
   "channel_subscription_check_failed": "<tg-emoji emoji-id=\"5339428493992162714\">🚫</tg-emoji> Couldn't verify the subscription. Please try again later or contact support.",
   "channel_subscription_verified_success": "<tg-emoji emoji-id=\"5339256974473199519\">👍</tg-emoji> Subscription confirmed! You're good to go.",
-  "main_menu_greeting": "Hi, {user_name}! 👋\nWhat would you like to do?",
   "menu_activate_trial_button": "Free Trial",
   "menu_subscribe_inline": "Purchase",
   "menu_my_subscription_inline": "Subscription",
