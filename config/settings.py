@@ -11,11 +11,11 @@ class Settings(BaseSettings):
         alias="ADMIN_IDS",
         description="Comma-separated list of admin Telegram User IDs")
 
-    POSTGRES_USER: str = Field(default="user")
-    POSTGRES_PASSWORD: str = Field(default="password")
-    POSTGRES_HOST: str = Field(default="localhost")
-    POSTGRES_PORT: int = Field(default=5432)
-    POSTGRES_DB: str = Field(default="vpn_shop_db")
+    DATABASE_USER: str = Field(default="user")
+    DATABASE_PASSWORD: str = Field(default="password")
+    DATABASE_HOST: str = Field(default="localhost")
+    DATABASE_PORT: int = Field(default=5432)
+    DATABASE_DB: str = Field(default="shop-database")
 
     DEFAULT_LANGUAGE: str = Field(default="ru")
 
@@ -219,7 +219,6 @@ class Settings(BaseSettings):
     SUBSCRIPTION_MINI_APP_URL: Optional[str] = Field(default=None)
 
     START_COMMAND_DESCRIPTION: Optional[str] = Field(default=None)
-    DISABLE_WELCOME_MESSAGE: bool = Field(default=False, description="Disable welcome message on /start command")
 
     MY_DEVICES_SECTION_ENABLED: bool = Field(
         default=False,
@@ -239,7 +238,7 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        return f"postgresql+asyncpg://{self.DATABASE_USER}:{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_DB}"
 
     @computed_field
     @property

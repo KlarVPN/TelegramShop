@@ -73,7 +73,6 @@ async def send_main_menu(target_event: Union[types.Message,
                 "Method has_had_any_subscription is missing in SubscriptionService for send_main_menu!"
             )
 
-    text = _(key="main_menu_greeting", user_name=user_full_name)
     reply_markup = get_main_menu_inline_keyboard(current_lang, i18n, settings,
                                                  show_trial_button_in_menu)
 
@@ -93,11 +92,26 @@ async def send_main_menu(target_event: Union[types.Message,
                                       show_alert=True)
         return
 
+    from aiogram.types import FSInputFile, InputMediaPhoto
+    photo = FSInputFile("images/menu.png")
+    
     try:
         if is_edit:
-            await target_message_obj.edit_text(text, reply_markup=reply_markup)
+            try:
+                if target_message_obj.photo:
+                    await target_message_obj.edit_media(media=InputMediaPhoto(media=photo), reply_markup=reply_markup)
+                else:
+                    await target_message_obj.delete()
+                    await target_message_obj.answer_photo(photo=photo, reply_markup=reply_markup)
+            except Exception as e_edit_media:
+                logging.debug("Could not edit media, fallback to delete and send new: %s", e_edit_media)
+                try:
+                    await target_message_obj.delete()
+                except Exception:
+                    pass
+                await target_message_obj.answer_photo(photo=photo, reply_markup=reply_markup)
         else:
-            await target_message_obj.answer(text, reply_markup=reply_markup)
+            await target_message_obj.answer_photo(photo=photo, reply_markup=reply_markup)
 
         if isinstance(target_event, types.CallbackQuery):
             try:
@@ -110,7 +124,7 @@ async def send_main_menu(target_event: Union[types.Message,
         )
         if is_edit and target_message_obj:
             try:
-                await target_message_obj.answer(text, reply_markup=reply_markup)
+                await target_message_obj.answer_photo(photo=photo, reply_markup=reply_markup)
             except Exception as e_send_new:
                 logging.error(
                     f"Also failed to send new main menu message for user {user_id}: {e_send_new}"
@@ -470,10 +484,6 @@ async def start_command_handler(message: types.Message,
                                                       db_user):
         return
 
-    # Send welcome message if not disabled
-    if not settings.DISABLE_WELCOME_MESSAGE:
-        await message.answer(_(key="welcome", user_name=hd.quote(user.full_name)))
-
     # Auto-apply promo code if provided via start parameter
     if promo_code_to_apply:
         try:
@@ -598,25 +608,6 @@ async def verify_channel_subscription_callback(
     else:
         _ = lambda key, **kwargs: key
 
-    if not settings.DISABLE_WELCOME_MESSAGE:
-        welcome_text = _(key="welcome",
-                         user_name=hd.quote(callback.from_user.full_name))
-        if callback.message:
-            try:
-                await callback.message.edit_text(welcome_text)
-            except Exception as welcome_edit_error:
-                logging.debug(
-                    "Failed to edit subscription prompt to welcome for user %s: %s",
-                    callback.from_user.id,
-                    welcome_edit_error,
-                )
-                await callback.message.answer(welcome_text)
-        else:
-            fallback_bot: Optional[Bot] = getattr(callback, "bot", None)
-            if fallback_bot:
-                await fallback_bot.send_message(callback.from_user.id,
-                                                welcome_text)
-
     try:
         await callback.answer(_(key="channel_subscription_verified_success"),
                               show_alert=True)
@@ -626,9 +617,6 @@ async def verify_channel_subscription_callback(
     menu_target_event: Union[types.Message, types.CallbackQuery] = callback
     should_edit_menu_message = bool(callback.message)
 
-    if not settings.DISABLE_WELCOME_MESSAGE and callback.message:
-        menu_target_event = callback.message
-        should_edit_menu_message = False
 
     await send_main_menu(menu_target_event,
                          settings,
