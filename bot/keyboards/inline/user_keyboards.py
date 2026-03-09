@@ -86,13 +86,24 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
                                  url=settings.DOCS_URL,
                                  icon_custom_emoji_id="5296258510684712098"))
 
-    builder.row([
-        InlineKeyboardButton(text=_(key="menu_web_button"),
-                             url=settings.WEB_URL,
-                             icon_custom_emoji_id="5296258510684712098") if settings.WEB_URL else '',
-        InlineKeyboardButton(text=_(key="menu_docs_button"),
-                             url=settings.DOCS_URL,
-                             icon_custom_emoji_id="5296258510684712098") if settings.DOCS_URL else ''])
+    buttons = []
+
+    if settings.WEB_URL:
+        buttons.append(InlineKeyboardButton(
+            text=_(key="menu_web_button"),
+            url=settings.WEB_URL,
+            icon_custom_emoji_id="5296258510684712098"
+        ))
+
+    if settings.DOCS_URL:
+        buttons.append(InlineKeyboardButton(
+            text=_(key="menu_docs_button"),
+            url=settings.DOCS_URL,
+            icon_custom_emoji_id="5296258510684712098"
+        ))
+
+    if buttons:
+        builder.row(*buttons)
 
     if settings.REQUIRED_CHANNEL_LINK:
         builder.row(
