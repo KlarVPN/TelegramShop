@@ -58,10 +58,9 @@ def get_main_menu_inline_keyboard(
     return builder.as_markup()
 
 
-def get_info_keyboard(i18n_instance,
-                                    current_lang: str) -> InlineKeyboardMarkup:
-    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs
-                                                    )
+def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     status_button_list = []
     if settings.SERVER_STATUS_URL:
