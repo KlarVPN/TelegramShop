@@ -8,6 +8,7 @@ from typing import Optional, Union
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramForbiddenError
+from aiogram.types import FSInputFile, InputMediaPhoto
 
 from db.dal import user_dal
 from db.models import User
@@ -92,7 +93,6 @@ async def send_main_menu(target_event: Union[types.Message,
                                       show_alert=True)
         return
 
-    from aiogram.types import FSInputFile, InputMediaPhoto
     photo = FSInputFile("images/menu.png")
     
     try:
