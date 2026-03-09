@@ -26,7 +26,7 @@
   "error_try_again": "Попробуйте еще раз.",
   "error_displaying_menu": "Ошибка отображения меню.",
   "main_menu_unknown_action": "Неизвестное действие.",
-  "select_subscription_period": "Выберите срок подписки:",
+  "select_subscription_period": "<tg-emoji emoji-id=\"5879585266426973039\">\uD83C\uDF10</tg-emoji> <b>Доступные локации:</b>\n \uD83C\uDDE9\uD83C\uDDEA Германия, \uD83C\uDDEA\uD83C\uDDEA Эстония, \uD83C\uDDEB\uD83C\uDDEE Финляндия, \uD83C\uDDF0\uD83C\uDDFF Казахстан, \uD83C\uDDF5\uD83C\uDDF1 Польша, \uD83C\uDDF3\uD83C\uDDF1 Нидерланды, \uD83C\uDDF9\uD83C\uDDF7 Турция, \uD83C\uDDF8\uD83C\uDDEA Швеция, \uD83C\uDDEB\uD83C\uDDEE Финляндия, \uD83C\uDDF7\uD83C\uDDFA Россия \n\nВыбирая нас Вы получите:\n- Безлимитный трафик\n- Высокую скорость\n-Анонимность в интернете\n-Все локации в одной подписке",
   "select_traffic_package": "Выберите пакет трафика:",
   "subscribe_for_months_button": "{months} мес. - {price} {currency_symbol}",
   "buy_traffic_package_button": "{traffic_gb} ГБ - {price} {currency_symbol}",
