@@ -1,8 +1,8 @@
 services:
-  remnawave-tg-shop:
+  klar-rm-shop:
     image: kavore/remnawave-tg-shop:latest
-    container_name: remnawave-tg-shop
-    hostname: remnawave-tg-shop
+    container_name: klar-rm-shop
+    hostname: klar-rm-shop
     env_file:
       - .env
     ports:
@@ -15,17 +15,17 @@ services:
       - ./locales:/app/locales
     restart: unless-stopped
     depends_on:
-      - remnawave-tg-shop-db
-  remnawave-tg-shop-db:
+      - klar-rm-shop-db
+  klar-rm-shop-db:
     image: postgres:17
-    container_name: remnawave-tg-shop-db
-    hostname: remnawave-tg-shop-db
+    container_name: klar-rm-shop-db
+    hostname: klar-rm-shop-db
     env_file:
       - .env
     environment:
       - TZ=UTC
     volumes:
-      - remnawave-tg-shop-db-data:/var/lib/postgresql/data
+      - klar-rm-shop-db-data:/var/lib/postgresql/data
     networks:
       - remnawave-network
     restart: unless-stopped
@@ -37,5 +37,5 @@ services:
 networks:
   remnawave-network: null
 volumes:
-  remnawave-tg-shop-db-data:
-    name: remnawave-tg-shop-db-data
+  klar-rm-shop-db-data:
+    name: klar-rm-shop-db-data
