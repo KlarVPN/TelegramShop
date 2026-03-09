@@ -20,8 +20,12 @@ services:
     image: postgres:17
     container_name: klar-rm-shop-db
     hostname: klar-rm-shop-db
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${DATABASE_HOST}
+      POSTGRES_PORT: ${DATABASE_PORT}
     environment:
       - TZ=UTC
     volumes:
