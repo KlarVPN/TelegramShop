@@ -15,6 +15,7 @@ from db.models import User
 
 from bot.keyboards.inline.user_keyboards import (
     get_main_menu_inline_keyboard,
+    get_info_keyboard,
     get_language_selection_keyboard,
     get_channel_subscription_keyboard,
 )
