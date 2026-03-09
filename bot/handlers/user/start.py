@@ -625,6 +625,42 @@ async def verify_channel_subscription_callback(
                          session,
                          is_edit=should_edit_menu_message)
 
+@router.callback_query(F.data == "main_action:info")
+async def info_callback_handler(
+    event: Union[types.Message, types.CallbackQuery],
+    i18n_data: dict,
+    settings: Settings,
+):
+    current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
+    i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
+    _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs
+                                           ) if i18n else key
+
+    reply_markup = get_info_keyboard(i18n, current_lang)
+
+    target_message_obj = event.message if isinstance(
+        event, types.CallbackQuery) else event
+    if not target_message_obj:
+        if isinstance(event, types.CallbackQuery):
+            await event.answer(_("error_occurred_try_again"), show_alert=True)
+        return
+
+    photo = FSInputFile("images/menu.png")
+    
+
+    if isinstance(event, types.CallbackQuery):
+        if event.message:
+            try:
+
+                await event.message.edit_media(media=InputMediaPhoto(media=photo), reply_markup=reply_markup)
+            except Exception:
+                await target_message_obj.answer_photo(photo,
+                                                reply_markup=reply_markup)
+        await event.answer()
+    else:
+        await target_message_obj.answer_photo(photo,
+                                        reply_markup=reply_markup)
+
 
 @router.message(Command("language"))
 @router.callback_query(F.data == "main_action:language")

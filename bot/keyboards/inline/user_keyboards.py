@@ -44,9 +44,24 @@ def get_main_menu_inline_keyboard(
     else:
         builder.row(promo_button)
 
+    info_button = InlineKeyboardButton(
+        text=_(key="menu_info_inline"),
+        callback_data="main_action:info")
+
     language_button = InlineKeyboardButton(
         text=_(key="menu_language_settings_inline"),
         callback_data="main_action:language")
+    
+    builder.row(language_button)
+
+    return builder.as_markup()
+
+
+def get_info_keyboard(i18n_instance,
+                                    current_lang: str) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs
+                                                    )
+    builder = InlineKeyboardBuilder()
     status_button_list = []
     if settings.SERVER_STATUS_URL:
         status_button_list.append(
@@ -55,14 +70,24 @@ def get_main_menu_inline_keyboard(
                                  icon_custom_emoji_id="5318972874726339331"))
 
     if status_button_list:
-        builder.row(language_button, *status_button_list)
-    else:
-        builder.row(language_button)
-
+        builder.row(*status_button_list)
+    
     if settings.SUPPORT_LINK:
         builder.row(
             InlineKeyboardButton(text=_(key="menu_support_button"),
                                  url=settings.SUPPORT_LINK,
+                                 icon_custom_emoji_id="5296258510684712098"))
+
+    if settings.WEB_URL:
+        builder.row(
+            InlineKeyboardButton(text=_(key="menu_web_button"),
+                                 url=settings.WEB_URL,
+                                 icon_custom_emoji_id="5296258510684712098"))
+
+    if settings.DOCS_URL:
+        builder.row(
+            InlineKeyboardButton(text=_(key="menu_docs_button"),
+                                 url=settings.DOCS_URL,
                                  icon_custom_emoji_id="5296258510684712098"))
 
     if settings.TERMS_OF_SERVICE_URL:
@@ -70,9 +95,9 @@ def get_main_menu_inline_keyboard(
             InlineKeyboardButton(text=_(key="menu_terms_button"),
                                  url=settings.TERMS_OF_SERVICE_URL,
                                  icon_custom_emoji_id="5298853345241358103"))
-
+    builder.button(text=_(key="back_to_main_menu_button"),
+                   callback_data="main_action:back_to_main")
     return builder.as_markup()
-
 
 def get_language_selection_keyboard(i18n_instance,
                                     current_lang: str) -> InlineKeyboardMarkup:
