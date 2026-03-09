@@ -118,7 +118,7 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
         builder.row(*other_buttons)
 
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main"))
+                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5258236805890710909"))
 
     return builder.as_markup()
 
@@ -136,7 +136,8 @@ def get_language_selection_keyboard(i18n_instance,
     builder.row(en_button, ru_button)
 
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                                     callback_data="main_action:back_to_main"))
+                                     callback_data="main_action:back_to_main",
+                                     icon_custom_emoji_id="5258236805890710909"))
 
     return builder.as_markup()
 
@@ -180,9 +181,9 @@ def get_subscription_options_keyboard(subscription_options: Dict[
                 builder.button(text=button_text,
                                callback_data=callback_data)
         builder.adjust(1)
-    builder.row(
-        InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                             callback_data="main_action:back_to_main"))
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
+                                     callback_data="main_action:back_to_main",
+                                     icon_custom_emoji_id="5258236805890710909"))
     return builder.as_markup()
 
 
@@ -246,7 +247,8 @@ def get_payment_url_keyboard(payment_url: str,
         builder.button(text=_(key=back_text_key), callback_data=back_callback)
     else:
         builder.button(text=_(key="back_to_main_menu_button"),
-                       callback_data="main_action:back_to_main")
+                                         callback_data="main_action:back_to_main",
+                                         icon_custom_emoji_id="5258236805890710909")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -359,7 +361,8 @@ def get_referral_link_keyboard(lang: str,
     builder.button(text=_(key="referral_share_message_button"),
                    callback_data="referral_action:share_message")
     builder.button(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main")
+                                     callback_data="main_action:back_to_main",
+                                     icon_custom_emoji_id="5258236805890710909")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -371,10 +374,12 @@ def get_back_to_main_menu_markup(lang: str,
     builder = InlineKeyboardBuilder()
     if callback_data:
         builder.button(text=_(key="back_to_main_menu_button"),
-                       callback_data=callback_data)
+                       callback_data=callback_data,
+                     icon_custom_emoji_id="5258236805890710909")
     else:
         builder.button(text=_(key="back_to_main_menu_button"),
-                       callback_data="main_action:back_to_main")
+                       callback_data="main_action:back_to_main",
+                       icon_custom_emoji_id="5258236805890710909")
     return builder.as_markup()
 
 
@@ -470,6 +475,7 @@ def get_connect_and_main_keyboard(
         InlineKeyboardButton(
             text=_("back_to_main_menu_button"),
             callback_data=back_callback,
+            icon_custom_emoji_id="5258236805890710909"
         )
     )
 
@@ -484,7 +490,8 @@ def get_payment_methods_manage_keyboard(lang: str, i18n_instance, has_card: bool
         InlineKeyboardButton(text=_(key="payment_method_bind_button"), callback_data="pm:bind")
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main")
+        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
+                             icon_custom_emoji_id="5258236805890710909")
     )
     return builder.as_markup()
 
@@ -522,7 +529,8 @@ def get_payment_methods_list_keyboard(
 
     # Bind new card and back
     builder.row(InlineKeyboardButton(text=_(key="payment_method_bind_button"), callback_data="pm:bind"))
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main"))
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
+                                     icon_custom_emoji_id="5258236805890710909"))
     return builder.as_markup()
 
 
@@ -546,7 +554,8 @@ def get_payment_method_details_keyboard(pm_id: str, lang: str, i18n_instance) ->
         InlineKeyboardButton(text=_(key="payment_method_delete_button"), callback_data=f"pm:delete_confirm:{pm_id}")
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0")
+        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
+                                     icon_custom_emoji_id="5258236805890710909")
     )
     return builder.as_markup()
 
@@ -555,7 +564,8 @@ def get_bind_url_keyboard(bind_url: str, lang: str, i18n_instance) -> InlineKeyb
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.button(text=_(key="payment_method_bind_button"), url=bind_url)
-    builder.button(text=_(key="back_to_main_menu_button"), callback_data="pm:manage")
+    builder.button(text=_(key="back_to_main_menu_button"), callback_data="pm:manage",
+                                     icon_custom_emoji_id="5258236805890710909")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -563,7 +573,8 @@ def get_bind_url_keyboard(bind_url: str, lang: str, i18n_instance) -> InlineKeyb
 def get_back_to_payment_methods_keyboard(lang: str, i18n_instance) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0"))
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
+                                     icon_custom_emoji_id="5258236805890710909"))
     return builder.as_markup()
 
 
@@ -571,7 +582,8 @@ def get_back_to_payment_method_details_keyboard(pm_id: str, lang: str, i18n_inst
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     # Back one step: return to specific payment method details
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data=f"pm:view:{pm_id}"))
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data=f"pm:view:{pm_id}",
+                                     icon_custom_emoji_id="5258236805890710909"))
     return builder.as_markup()
 
 
