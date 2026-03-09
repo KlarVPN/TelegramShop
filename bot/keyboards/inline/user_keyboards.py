@@ -135,8 +135,9 @@ def get_language_selection_keyboard(i18n_instance,
                    style='success' if current_lang == 'ru' else None)
     builder.row(en_button, ru_button)
 
-    builder.button(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main")
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
+                                     callback_data="main_action:back_to_main"))
+
     return builder.as_markup()
 
 

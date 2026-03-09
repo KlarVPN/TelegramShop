@@ -685,16 +685,19 @@ async def language_command_handler(
             await event.answer(_("error_occurred_try_again"), show_alert=True)
         return
 
+
     if isinstance(event, types.CallbackQuery):
         if event.message:
             try:
                 await event.message.edit_text(text_to_send,
                                               reply_markup=reply_markup)
             except Exception:
+                await target_message_obj.delete()
                 await target_message_obj.answer(text_to_send,
                                                 reply_markup=reply_markup)
         await event.answer()
     else:
+        await target_message_obj.delete()
         await target_message_obj.answer(text_to_send,
                                         reply_markup=reply_markup)
 
@@ -763,9 +766,12 @@ async def main_action_callback_handler(
     from . import promo_user as user_promo_handlers
     from . import trial_handler as user_trial_handlers
 
+
     if not callback.message:
         await callback.answer("Error: message context lost.", show_alert=True)
         return
+    else:
+        await callback.message.delete()
 
     if action == "subscribe":
         await user_subscription_handlers.display_subscription_options(
@@ -795,6 +801,7 @@ async def main_action_callback_handler(
 
         await language_command_handler(callback, i18n_data, settings)
     elif action == "back_to_main":
+        await callback.message.delete()
         await send_main_menu(callback,
                              settings,
                              i18n_data,
