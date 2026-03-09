@@ -95,7 +95,7 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
             InlineKeyboardButton(text=_(key="menu_terms_button"),
                                  url=settings.TERMS_OF_SERVICE_URL,
                                  icon_custom_emoji_id="5298853345241358103"))
-    builder.button(text=_(key="back_to_main_menu_button"),
+    builder.row(text=_(key="back_to_main_menu_button"),
                    callback_data="main_action:back_to_main")
     return builder.as_markup()
 
