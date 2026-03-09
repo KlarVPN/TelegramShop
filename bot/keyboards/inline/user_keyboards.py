@@ -127,13 +127,16 @@ def get_language_selection_keyboard(i18n_instance,
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs
                                                     )
     builder = InlineKeyboardBuilder()
-    builder.button(text=f"🇬🇧 English {'✅' if current_lang == 'en' else ''}",
-                   callback_data="set_lang_en")
-    builder.button(text=f"🇷🇺 Русский {'✅' if current_lang == 'ru' else ''}",
-                   callback_data="set_lang_ru")
+    en_button = InlineKeyboardButton(text=f"🇬🇧 English",
+                   callback_data="set_lang_en",
+                   style='success' if current_lang == 'en' else None)
+    ru_button = InlineKeyboardButton(text=f"🇷🇺 Русский",
+                   callback_data="set_lang_ru",
+                   style='success' if current_lang == 'ru' else None)
+    builder.row(en_button, ru_button)
+
     builder.button(text=_(key="back_to_main_menu_button"),
                    callback_data="main_action:back_to_main")
-    builder.adjust(1)
     return builder.as_markup()
 
 
