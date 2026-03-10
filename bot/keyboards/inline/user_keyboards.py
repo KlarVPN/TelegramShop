@@ -17,70 +17,92 @@ def get_main_menu_inline_keyboard(
         builder.row(
             InlineKeyboardButton(text=_(key="menu_activate_trial_button"),
                                  callback_data="main_action:request_trial",
-                                 icon_custom_emoji_id="5296372434692234934"))
+                                 icon_custom_emoji_id="5296529806588943113"))
 
-    builder.row(
-        InlineKeyboardButton(text=_(key="menu_subscribe_inline"),
-                             callback_data="main_action:subscribe",
-                             icon_custom_emoji_id="5372874186010158207"))
-    builder.row(
-        InlineKeyboardButton(
-            text=_(key="menu_my_subscription_inline"),
-            callback_data="main_action:my_subscription",
-            icon_custom_emoji_id="5373346752671804066"
-        )
+
+    lk_button = InlineKeyboardButton(
+        text=_(key="menu_lk_inline"),
+        callback_data="main_action:lk",
+        icon_custom_emoji_id="5296601030031614450"
     )
-
-    promo_button = InlineKeyboardButton(
-        text=_(key="menu_apply_promo_button"),
-        callback_data="main_action:apply_promo",
-        icon_custom_emoji_id="5301173701323028420")
-    if settings.REFERRAL_ENABLED:
-        referral_button = InlineKeyboardButton(
-            text=_(key="menu_referral_inline"),
-            callback_data="main_action:referral",
-            icon_custom_emoji_id="5235695112419303615")
-        builder.row(referral_button, promo_button)
-    else:
-        builder.row(promo_button)
+    builder.row(lk_button)
 
     info_button = InlineKeyboardButton(
         text=_(key="menu_info_inline"),
         callback_data="main_action:info",
-        icon_custom_emoji_id="5373318693650458620"
+        icon_custom_emoji_id="5298652117433622027"
     )
     builder.row(info_button)
 
-    language_button = InlineKeyboardButton(
+    if settings.SUPPORT_LINK:
+        builder.row(InlineKeyboardButton(text=_(key="menu_support_button"),
+                                 url=settings.SUPPORT_LINK,
+                                 icon_custom_emoji_id="5296661314192580241"))
+
+    builder.row(InlineKeyboardButton(
         text=_(key="menu_language_settings_inline"),
-        callback_data="main_action:language")
+        callback_data="main_action:language",
+        icon_custom_emoji_id="5296375222126026745" if lang == "ru" else "5296430537009831302"))
     
-    builder.row(language_button)
 
     return builder.as_markup()
 
 
 def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
-
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
-    bot_buttons = []
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_about_inline"),
+            callback_data="main_action:about",
+            icon_custom_emoji_id="5296363118908190052"
+        )
+    )
 
-    if settings.SUPPORT_LINK:
-        bot_buttons.append(InlineKeyboardButton(text=_(key="menu_support_button"),
-                                 url=settings.SUPPORT_LINK,
-                                 icon_custom_emoji_id="5296258510684712098"))
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
+                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
+
+    return builder.as_markup()
+
+def get_lk_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
+    builder = InlineKeyboardBuilder()
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_my_subscription_inline"),
+            callback_data="main_action:my_subscription",
+            icon_custom_emoji_id="5296363118908190052"
+        )
+    )
+
+    builder.row(InlineKeyboardButton(
+        text=_(key="menu_apply_promo_button"),
+        callback_data="main_action:apply_promo",
+        icon_custom_emoji_id="5298547526390026413"))
+
+    if settings.REFERRAL_ENABLED:
+        builder.row(InlineKeyboardButton(
+            text=_(key="menu_referral_inline"),
+            callback_data="main_action:referral",
+            icon_custom_emoji_id="5296529806588943113"))
+    
+    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
+                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
+
+    return builder.as_markup()
+
+
+def get_about_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
+    builder = InlineKeyboardBuilder()
 
 
     if settings.REQUIRED_CHANNEL_LINK:
-        bot_buttons.append(
-            InlineKeyboardButton(text=_(key="menu_channel_button"),
+        builder.row(InlineKeyboardButton(text=_(key="menu_channel_button"),
                                  url=settings.REQUIRED_CHANNEL_LINK,
-                                 icon_custom_emoji_id="5296258510684712098"))
-
-    if bot_buttons:
-        builder.row(*bot_buttons)
+                                 icon_custom_emoji_id="5296599655642086597"))
 
     web_buttons = []
 
@@ -88,14 +110,14 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
         web_buttons.append(InlineKeyboardButton(
             text=_(key="menu_web_button"),
             url=settings.WEB_URL,
-            icon_custom_emoji_id="5296258510684712098"
+            icon_custom_emoji_id="5298681396225677178"
         ))
 
     if settings.DOCS_URL:
         web_buttons.append(InlineKeyboardButton(
             text=_(key="menu_docs_button"),
             url=settings.DOCS_URL,
-            icon_custom_emoji_id="5296258510684712098"
+            icon_custom_emoji_id="5296472189602669738"
         ))
 
     if web_buttons:
@@ -106,38 +128,41 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
     if settings.SERVER_STATUS_URL:
         other_buttons.append(InlineKeyboardButton(text=_(key="menu_server_status_button"),
                                  url=settings.SERVER_STATUS_URL,
-                                 icon_custom_emoji_id="5318972874726339331"))
+                                 icon_custom_emoji_id="5296649344118727461"))
 
     if settings.TERMS_OF_SERVICE_URL:
         other_buttons.append(
             InlineKeyboardButton(text=_(key="menu_terms_button"),
                                  url=settings.TERMS_OF_SERVICE_URL,
-                                 icon_custom_emoji_id="5298853345241358103"))
+                                 icon_custom_emoji_id="5298709356462773297"))
 
     if other_buttons:
         builder.row(*other_buttons)
 
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5258236805890710909"))
+                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
 
     return builder.as_markup()
+
 
 def get_language_selection_keyboard(i18n_instance,
                                     current_lang: str) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs
                                                     )
     builder = InlineKeyboardBuilder()
-    en_button = InlineKeyboardButton(text=f"🇬🇧 English",
+    en_button = InlineKeyboardButton(text="English",
                    callback_data="set_lang_en",
-                   style='success' if current_lang == 'en' else None)
-    ru_button = InlineKeyboardButton(text=f"🇷🇺 Русский",
+                   style='success' if current_lang == 'en' else None,
+                   icon_custom_emoji_id="5296430537009831302")
+    ru_button = InlineKeyboardButton(text="Русский",
                    callback_data="set_lang_ru",
-                   style='success' if current_lang == 'ru' else None)
+                   style='success' if current_lang == 'ru' else None,
+                   icon_custom_emoji_id="5296375222126026745")
     builder.row(en_button, ru_button)
 
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
                                      callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5258236805890710909"))
+                                     icon_custom_emoji_id="5296412923348952548"))
 
     return builder.as_markup()
 
@@ -183,7 +208,7 @@ def get_subscription_options_keyboard(subscription_options: Dict[
         builder.adjust(1)
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
                                      callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5258236805890710909"))
+                                     icon_custom_emoji_id="5296412923348952548"))
     return builder.as_markup()
 
 
@@ -248,7 +273,7 @@ def get_payment_url_keyboard(payment_url: str,
     else:
         builder.button(text=_(key="back_to_main_menu_button"),
                                          callback_data="main_action:back_to_main",
-                                         icon_custom_emoji_id="5258236805890710909")
+                                         icon_custom_emoji_id="5296412923348952548")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -362,7 +387,7 @@ def get_referral_link_keyboard(lang: str,
                    callback_data="referral_action:share_message")
     builder.button(text=_(key="back_to_main_menu_button"),
                                      callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5258236805890710909")
+                                     icon_custom_emoji_id="5296412923348952548")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -375,11 +400,11 @@ def get_back_to_main_menu_markup(lang: str,
     if callback_data:
         builder.button(text=_(key="back_to_main_menu_button"),
                        callback_data=callback_data,
-                     icon_custom_emoji_id="5258236805890710909")
+                     icon_custom_emoji_id="5296412923348952548")
     else:
         builder.button(text=_(key="back_to_main_menu_button"),
                        callback_data="main_action:back_to_main",
-                       icon_custom_emoji_id="5258236805890710909")
+                       icon_custom_emoji_id="5296412923348952548")
     return builder.as_markup()
 
 
@@ -475,7 +500,7 @@ def get_connect_and_main_keyboard(
         InlineKeyboardButton(
             text=_("back_to_main_menu_button"),
             callback_data=back_callback,
-            icon_custom_emoji_id="5258236805890710909"
+            icon_custom_emoji_id="5296412923348952548"
         )
     )
 
@@ -491,7 +516,7 @@ def get_payment_methods_manage_keyboard(lang: str, i18n_instance, has_card: bool
     )
     builder.row(
         InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
-                             icon_custom_emoji_id="5258236805890710909")
+                             icon_custom_emoji_id="5296412923348952548")
     )
     return builder.as_markup()
 
@@ -530,7 +555,7 @@ def get_payment_methods_list_keyboard(
     # Bind new card and back
     builder.row(InlineKeyboardButton(text=_(key="payment_method_bind_button"), callback_data="pm:bind"))
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5258236805890710909"))
+                                     icon_custom_emoji_id="5296412923348952548"))
     return builder.as_markup()
 
 
@@ -555,7 +580,7 @@ def get_payment_method_details_keyboard(pm_id: str, lang: str, i18n_instance) ->
     )
     builder.row(
         InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
-                                     icon_custom_emoji_id="5258236805890710909")
+                                     icon_custom_emoji_id="5296412923348952548")
     )
     return builder.as_markup()
 
@@ -565,7 +590,7 @@ def get_bind_url_keyboard(bind_url: str, lang: str, i18n_instance) -> InlineKeyb
     builder = InlineKeyboardBuilder()
     builder.button(text=_(key="payment_method_bind_button"), url=bind_url)
     builder.button(text=_(key="back_to_main_menu_button"), callback_data="pm:manage",
-                                     icon_custom_emoji_id="5258236805890710909")
+                                     icon_custom_emoji_id="5296412923348952548")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -574,7 +599,7 @@ def get_back_to_payment_methods_keyboard(lang: str, i18n_instance) -> InlineKeyb
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
-                                     icon_custom_emoji_id="5258236805890710909"))
+                                     icon_custom_emoji_id="5296412923348952548"))
     return builder.as_markup()
 
 
@@ -583,7 +608,7 @@ def get_back_to_payment_method_details_keyboard(pm_id: str, lang: str, i18n_inst
     builder = InlineKeyboardBuilder()
     # Back one step: return to specific payment method details
     builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data=f"pm:view:{pm_id}",
-                                     icon_custom_emoji_id="5258236805890710909"))
+                                     icon_custom_emoji_id="5296412923348952548"))
     return builder.as_markup()
 
 

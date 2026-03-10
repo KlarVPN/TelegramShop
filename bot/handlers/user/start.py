@@ -16,6 +16,8 @@ from db.models import User
 from bot.keyboards.inline.user_keyboards import (
     get_main_menu_inline_keyboard,
     get_info_keyboard,
+    get_lk_keyboard,
+    get_about_keyboard,
     get_language_selection_keyboard,
     get_channel_subscription_keyboard,
 )
@@ -647,6 +649,77 @@ async def info_callback_handler(
         return
 
     photo = FSInputFile("images/info.png")
+
+    if isinstance(event, types.CallbackQuery):
+        if event.message:
+            try:
+                await event.message.edit_media(media=InputMediaPhoto(media=photo), reply_markup=reply_markup)
+            except Exception:
+                await target_message_obj.answer_photo(photo,
+                                                reply_markup=reply_markup)
+        await event.answer()
+    else:
+        await target_message_obj.answer_photo(photo,
+                                        reply_markup=reply_markup)
+
+
+@router.callback_query(F.data == "main_action:about")
+async def about_callback_handler(
+    event: Union[types.Message, types.CallbackQuery],
+    i18n_data: dict,
+    settings: Settings,
+):
+    current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
+    i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
+    _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs
+                                           ) if i18n else key
+
+    reply_markup = get_about_keyboard(i18n, settings, current_lang)
+
+    target_message_obj = event.message if isinstance(
+        event, types.CallbackQuery) else event
+    if not target_message_obj:
+        if isinstance(event, types.CallbackQuery):
+            await event.answer(_("error_occurred_try_again"), show_alert=True)
+        return
+
+    photo = FSInputFile("images/about.png")
+    caption = _("about_text")
+
+    if isinstance(event, types.CallbackQuery):
+        if event.message:
+            try:
+                await event.message.edit_media(media=InputMediaPhoto(media=photo, caption=caption), reply_markup=reply_markup)
+            except Exception:
+                await target_message_obj.answer_photo(photo, caption=caption,
+                                                reply_markup=reply_markup)
+        await event.answer()
+    else:
+        await target_message_obj.answer_photo(photo, caption=caption,
+                                        reply_markup=reply_markup)
+
+
+@router.callback_query(F.data == "main_action:lk")
+async def lk_callback_handler(
+    event: Union[types.Message, types.CallbackQuery],
+    i18n_data: dict,
+    settings: Settings,
+):
+    current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
+    i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
+    _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs
+                                           ) if i18n else key
+
+    reply_markup = get_lk_keyboard(i18n, settings, current_lang)
+
+    target_message_obj = event.message if isinstance(
+        event, types.CallbackQuery) else event
+    if not target_message_obj:
+        if isinstance(event, types.CallbackQuery):
+            await event.answer(_("error_occurred_try_again"), show_alert=True)
+        return
+
+    photo = FSInputFile("images/personal_account.png")
 
     if isinstance(event, types.CallbackQuery):
         if event.message:
