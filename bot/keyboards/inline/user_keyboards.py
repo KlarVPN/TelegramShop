@@ -1,54 +1,68 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
+from typing import Dict, List, Optional, Tuple
+
 from aiogram.types import InlineKeyboardMarkup, WebAppInfo
-from typing import Dict, Optional, List, Tuple
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
 from config.settings import Settings
 
 
 def get_main_menu_inline_keyboard(
-        lang: str,
-        i18n_instance,
-        settings: Settings,
-        show_trial_button: bool = False) -> InlineKeyboardMarkup:
+    lang: str, i18n_instance, settings: Settings, show_trial_button: bool = False
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
     if show_trial_button and settings.TRIAL_ENABLED:
         builder.row(
-            InlineKeyboardButton(text=_(key="menu_activate_trial_button"),
-                                 callback_data="main_action:request_trial",
-                                 icon_custom_emoji_id="5296529806588943113"))
-
+            InlineKeyboardButton(
+                text=_(key="menu_activate_trial_button"),
+                callback_data="main_action:request_trial",
+                icon_custom_emoji_id="5296529806588943113",
+            )
+        )
 
     lk_button = InlineKeyboardButton(
         text=_(key="menu_lk_inline"),
         callback_data="main_action:lk",
-        icon_custom_emoji_id="5296601030031614450"
+        icon_custom_emoji_id="5296601030031614450",
     )
     builder.row(lk_button)
 
-    info_button = InlineKeyboardButton(
-        text=_(key="menu_info_inline"),
-        callback_data="main_action:info",
-        icon_custom_emoji_id="5298652117433622027"
+    row = []
+    row.append(
+        InlineKeyboardButton(
+            text=_(key="menu_info_inline"),
+            callback_data="main_action:info",
+            icon_custom_emoji_id="5298652117433622027",
+        )
     )
-    builder.row(info_button)
 
     if settings.SUPPORT_LINK:
-        builder.row(InlineKeyboardButton(text=_(key="menu_support_button"),
-                                 url=settings.SUPPORT_LINK,
-                                 icon_custom_emoji_id="5296661314192580241"))
+        row.append(
+            InlineKeyboardButton(
+                text=_(key="menu_support_button"),
+                url=settings.SUPPORT_LINK,
+                icon_custom_emoji_id="5296661314192580241",
+            )
+        )
 
-    builder.row(InlineKeyboardButton(
-        text=_(key="menu_language_settings_inline"),
-        callback_data="main_action:language",
-        icon_custom_emoji_id="5296375222126026745" if lang == "ru" else "5296430537009831302"))
-    
+    builder.row(*row)
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_language_settings_inline"),
+            callback_data="main_action:language",
+            icon_custom_emoji_id="5296375222126026745"
+            if lang == "ru"
+            else "5296430537009831302",
+        )
+    )
 
     return builder.as_markup()
 
 
-def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+def get_info_keyboard(
+    i18n_instance, settings: Settings, current_lang: str
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
@@ -56,16 +70,32 @@ def get_info_keyboard(i18n_instance, settings: Settings, current_lang: str) -> I
         InlineKeyboardButton(
             text=_(key="menu_about_inline"),
             callback_data="main_action:about",
-            icon_custom_emoji_id="5296363118908190052"
+            icon_custom_emoji_id="5296363118908190052",
         )
     )
 
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_instruction_inline"),
+            callback_data="main_action:instruction",
+            icon_custom_emoji_id="5296472189602669738",
+        )
+    )
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
 
     return builder.as_markup()
 
-def get_lk_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+
+def get_lk_keyboard(
+    i18n_instance, settings: Settings, current_lang: str
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
@@ -73,52 +103,127 @@ def get_lk_keyboard(i18n_instance, settings: Settings, current_lang: str) -> Inl
         InlineKeyboardButton(
             text=_(key="menu_my_subscription_inline"),
             callback_data="main_action:my_subscription",
-            icon_custom_emoji_id="5296363118908190052"
+            icon_custom_emoji_id="5296363118908190052",
         )
     )
 
-    builder.row(InlineKeyboardButton(
-        text=_(key="menu_apply_promo_button"),
-        callback_data="main_action:apply_promo",
-        icon_custom_emoji_id="5298547526390026413"))
+    row = []
+
+    row.append(
+        InlineKeyboardButton(
+            text=_(key="menu_apply_promo_button"),
+            callback_data="main_action:apply_promo",
+            icon_custom_emoji_id="5298547526390026413",
+        )
+    )
 
     if settings.REFERRAL_ENABLED:
-        builder.row(InlineKeyboardButton(
-            text=_(key="menu_referral_inline"),
-            callback_data="main_action:referral",
-            icon_custom_emoji_id="5296529806588943113"))
-    
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
+        row.append(
+            InlineKeyboardButton(
+                text=_(key="menu_referral_inline"),
+                callback_data="main_action:referral",
+                icon_custom_emoji_id="5296529806588943113",
+            )
+        )
+
+    builder.row(*row)
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
 
     return builder.as_markup()
 
 
-def get_about_keyboard(i18n_instance, settings: Settings, current_lang: str) -> InlineKeyboardMarkup:
+def get_instuction_keyboard(
+    i18n_instance, settings: Settings, current_lang: str
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
 
+    builder.row(
+        InlineKeyboardButton(
+            text="Android",
+            url="https://docs.klar.icu/clients/android",
+            icon_custom_emoji_id="5296740238511612457",
+        ),
+        InlineKeyboardButton(
+            text="iOS",
+            url="https://docs.klar.icu/clients/ios",
+            icon_custom_emoji_id="5298535569201074120",
+        ),
+    )
+
+    builder.row(
+        InlineKeyboardButton(
+            text="macOS",
+            url="https://docs.klar.icu/clients/macos",
+            icon_custom_emoji_id="5330152983835483851",
+        ),
+        InlineKeyboardButton(
+            text="Windows",
+            url="https://docs.klar.icu/clients/windows",
+            icon_custom_emoji_id="5296371777562253543",
+        ),
+    )
+
+    builder.row(
+        InlineKeyboardButton(
+            text="Linux",
+            url="https://docs.klar.icu/clients/linux",
+            icon_custom_emoji_id="5328051031135783164",
+        )
+    )
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:info",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
+
+    return builder.as_markup()
+
+
+def get_about_keyboard(
+    i18n_instance, settings: Settings, current_lang: str
+) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
+    builder = InlineKeyboardBuilder()
 
     if settings.REQUIRED_CHANNEL_LINK:
-        builder.row(InlineKeyboardButton(text=_(key="menu_channel_button"),
-                                 url=settings.REQUIRED_CHANNEL_LINK,
-                                 icon_custom_emoji_id="5296599655642086597"))
+        builder.row(
+            InlineKeyboardButton(
+                text=_(key="menu_channel_button"),
+                url=settings.REQUIRED_CHANNEL_LINK,
+                icon_custom_emoji_id="5296599655642086597",
+            )
+        )
 
     web_buttons = []
 
     if settings.WEB_URL:
-        web_buttons.append(InlineKeyboardButton(
-            text=_(key="menu_web_button"),
-            url=settings.WEB_URL,
-            icon_custom_emoji_id="5298681396225677178"
-        ))
+        web_buttons.append(
+            InlineKeyboardButton(
+                text=_(key="menu_web_button"),
+                url=settings.WEB_URL,
+                icon_custom_emoji_id="5298681396225677178",
+            )
+        )
 
     if settings.DOCS_URL:
-        web_buttons.append(InlineKeyboardButton(
-            text=_(key="menu_docs_button"),
-            url=settings.DOCS_URL,
-            icon_custom_emoji_id="5296472189602669738"
-        ))
+        web_buttons.append(
+            InlineKeyboardButton(
+                text=_(key="menu_docs_button"),
+                url=settings.DOCS_URL,
+                icon_custom_emoji_id="5296472189602669738",
+            )
+        )
 
     if web_buttons:
         builder.row(*web_buttons)
@@ -126,66 +231,94 @@ def get_about_keyboard(i18n_instance, settings: Settings, current_lang: str) -> 
     other_buttons = []
 
     if settings.SERVER_STATUS_URL:
-        other_buttons.append(InlineKeyboardButton(text=_(key="menu_server_status_button"),
-                                 url=settings.SERVER_STATUS_URL,
-                                 icon_custom_emoji_id="5296649344118727461"))
+        other_buttons.append(
+            InlineKeyboardButton(
+                text=_(key="menu_server_status_button"),
+                url=settings.SERVER_STATUS_URL,
+                icon_custom_emoji_id="5296649344118727461",
+            )
+        )
 
     if settings.TERMS_OF_SERVICE_URL:
         other_buttons.append(
-            InlineKeyboardButton(text=_(key="menu_terms_button"),
-                                 url=settings.TERMS_OF_SERVICE_URL,
-                                 icon_custom_emoji_id="5298709356462773297"))
+            InlineKeyboardButton(
+                text=_(key="menu_terms_button"),
+                url=settings.TERMS_OF_SERVICE_URL,
+                icon_custom_emoji_id="5298709356462773297",
+            )
+        )
 
     if other_buttons:
         builder.row(*other_buttons)
 
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                   callback_data="main_action:back_to_main", icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:info",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
 
     return builder.as_markup()
 
 
-def get_language_selection_keyboard(i18n_instance,
-                                    current_lang: str) -> InlineKeyboardMarkup:
-    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs
-                                                    )
+def get_language_selection_keyboard(
+    i18n_instance, current_lang: str
+) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    en_button = InlineKeyboardButton(text="English",
-                   callback_data="set_lang_en",
-                   style='success' if current_lang == 'en' else None,
-                   icon_custom_emoji_id="5296430537009831302")
-    ru_button = InlineKeyboardButton(text="Русский",
-                   callback_data="set_lang_ru",
-                   style='success' if current_lang == 'ru' else None,
-                   icon_custom_emoji_id="5296375222126026745")
+    en_button = InlineKeyboardButton(
+        text="English",
+        callback_data="set_lang_en",
+        style="success" if current_lang == "en" else None,
+        icon_custom_emoji_id="5296430537009831302",
+    )
+    ru_button = InlineKeyboardButton(
+        text="Русский",
+        callback_data="set_lang_ru",
+        style="success" if current_lang == "ru" else None,
+        icon_custom_emoji_id="5296375222126026745",
+    )
     builder.row(en_button, ru_button)
 
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                                     callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
 
     return builder.as_markup()
 
 
-def get_trial_confirmation_keyboard(lang: str,
-                                    i18n_instance) -> InlineKeyboardMarkup:
+def get_trial_confirmation_keyboard(lang: str, i18n_instance) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    builder.button(text=_(key="trial_confirm_activate_button"),
-                   callback_data="trial_action:confirm_activate")
-    builder.button(text=_(key="cancel_button"),
-                   callback_data="main_action:back_to_main")
+    builder.button(
+        text=_(key="trial_confirm_activate_button"),
+        callback_data="trial_action:confirm_activate",
+    )
+    builder.button(
+        text=_(key="cancel_button"), callback_data="main_action:back_to_main"
+    )
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_subscription_options_keyboard(subscription_options: Dict[
-    float, Optional[float]], currency_symbol_val: str, lang: str,
-                                      i18n_instance, traffic_mode: bool = False) -> InlineKeyboardMarkup:
+def get_subscription_options_keyboard(
+    subscription_options: Dict[float, Optional[float]],
+    currency_symbol_val: str,
+    lang: str,
+    i18n_instance,
+    traffic_mode: bool = False,
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
+
     def _format_gb(val: float) -> str:
         return str(int(val)) if float(val).is_integer() else f"{val:g}"
+
     if subscription_options:
         for months, price in subscription_options.items():
             if price is not None:
@@ -198,28 +331,41 @@ def get_subscription_options_keyboard(subscription_options: Dict[
                     )
                     callback_data = f"subscribe_period:{_format_gb(months)}"
                 else:
-                    button_text = _("subscribe_for_months_button",
-                                    months=months,
-                                    price=price,
-                                    currency_symbol=currency_symbol_val)
+                    button_text = _(
+                        "subscribe_for_months_button",
+                        months=months,
+                        price=price,
+                        currency_symbol=currency_symbol_val,
+                    )
                     callback_data = f"subscribe_period:{months}"
-                builder.button(text=button_text,
-                               callback_data=callback_data)
+                builder.button(text=button_text, callback_data=callback_data)
         builder.adjust(1)
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"),
-                                     callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
     return builder.as_markup()
 
 
-def get_payment_method_keyboard(months: int, price: float,
-                                stars_price: Optional[int],
-                                currency_symbol_val: str, lang: str,
-                                i18n_instance, settings: Settings, sale_mode: str = "subscription") -> InlineKeyboardMarkup:
+def get_payment_method_keyboard(
+    months: int,
+    price: float,
+    stars_price: Optional[int],
+    currency_symbol_val: str,
+    lang: str,
+    i18n_instance,
+    settings: Settings,
+    sale_mode: str = "subscription",
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
+
     def _format_value(val: float) -> str:
         return str(int(val)) if float(val).is_integer() else f"{val:g}"
+
     value_str = _format_value(months)
     mode_suffix = f":{sale_mode}"
     for method in settings.payment_methods_order:
@@ -253,27 +399,29 @@ def get_payment_method_keyboard(months: int, price: float,
                 text=_("pay_with_cryptopay_button"),
                 callback_data=f"pay_crypto:{value_str}:{price}{mode_suffix}",
             )
-    builder.button(text=_(key="cancel_button"),
-                   callback_data="main_action:subscribe")
+    builder.button(text=_(key="cancel_button"), callback_data="main_action:subscribe")
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_payment_url_keyboard(payment_url: str,
-                             lang: str,
-                             i18n_instance,
-                             back_callback: Optional[str] = None,
-                             back_text_key: str = "back_to_main_menu_button"
-                             ) -> InlineKeyboardMarkup:
+def get_payment_url_keyboard(
+    payment_url: str,
+    lang: str,
+    i18n_instance,
+    back_callback: Optional[str] = None,
+    back_text_key: str = "back_to_main_menu_button",
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.button(text=_(key="pay_button"), url=payment_url)
     if back_callback:
         builder.button(text=_(key=back_text_key), callback_data=back_callback)
     else:
-        builder.button(text=_(key="back_to_main_menu_button"),
-                                         callback_data="main_action:back_to_main",
-                                         icon_custom_emoji_id="5296412923348952548")
+        builder.button(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
     builder.adjust(1)
     return builder.as_markup()
 
@@ -290,8 +438,10 @@ def get_yk_autopay_choice_keyboard(
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     price_str = str(price)
+
     def _format_value(val: float) -> str:
         return str(int(val)) if float(val).is_integer() else f"{val:g}"
+
     value_str = _format_value(months)
     suffix = f":{sale_mode}"
     if has_saved_cards:
@@ -333,8 +483,10 @@ def get_yk_saved_cards_keyboard(
     start = page * per_page
     end = min(total, start + per_page)
     price_str = str(price)
+
     def _format_value(val: float) -> str:
         return str(int(val)) if float(val).is_integer() else f"{val:g}"
+
     value_str = _format_value(months)
     suffix = f":{sale_mode}"
 
@@ -351,14 +503,14 @@ def get_yk_saved_cards_keyboard(
         nav_buttons.append(
             InlineKeyboardButton(
                 text="⬅️",
-                callback_data=f"pay_yk_saved_list:{value_str}:{price_str}:{page-1}{suffix}",
+                callback_data=f"pay_yk_saved_list:{value_str}:{price_str}:{page - 1}{suffix}",
             )
         )
     if end < total:
         nav_buttons.append(
             InlineKeyboardButton(
                 text="➡️",
-                callback_data=f"pay_yk_saved_list:{value_str}:{price_str}:{page+1}{suffix}",
+                callback_data=f"pay_yk_saved_list:{value_str}:{price_str}:{page + 1}{suffix}",
             )
         )
     if nav_buttons:
@@ -379,45 +531,54 @@ def get_yk_saved_cards_keyboard(
     return builder.as_markup()
 
 
-def get_referral_link_keyboard(lang: str,
-                               i18n_instance) -> InlineKeyboardMarkup:
+def get_referral_link_keyboard(lang: str, i18n_instance) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    builder.button(text=_(key="referral_share_message_button"),
-                   callback_data="referral_action:share_message")
-    builder.button(text=_(key="back_to_main_menu_button"),
-                                     callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5296412923348952548")
+    builder.button(
+        text=_(key="referral_share_message_button"),
+        callback_data="referral_action:share_message",
+    )
+    builder.button(
+        text=_(key="back_to_main_menu_button"),
+        callback_data="main_action:back_to_main",
+        icon_custom_emoji_id="5296412923348952548",
+    )
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_back_to_main_menu_markup(lang: str,
-                                 i18n_instance,
-                                 callback_data: Optional[str] = None) -> InlineKeyboardMarkup:
+def get_back_to_main_menu_markup(
+    lang: str, i18n_instance, callback_data: Optional[str] = None
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     if callback_data:
-        builder.button(text=_(key="back_to_main_menu_button"),
-                       callback_data=callback_data,
-                     icon_custom_emoji_id="5296412923348952548")
+        builder.button(
+            text=_(key="back_to_main_menu_button"),
+            callback_data=callback_data,
+            icon_custom_emoji_id="5296412923348952548",
+        )
     else:
-        builder.button(text=_(key="back_to_main_menu_button"),
-                       callback_data="main_action:back_to_main",
-                       icon_custom_emoji_id="5296412923348952548")
+        builder.button(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
     return builder.as_markup()
 
 
 def get_subscribe_only_markup(lang: str, i18n_instance) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    builder.button(text=_(key="menu_subscribe_inline"),
-                   callback_data="main_action:subscribe")
+    builder.button(
+        text=_(key="menu_subscribe_inline"), callback_data="main_action:subscribe"
+    )
     return builder.as_markup()
 
 
-def get_user_banned_keyboard(support_link: Optional[str], lang: str,
-                             i18n_instance) -> Optional[InlineKeyboardMarkup]:
+def get_user_banned_keyboard(
+    support_link: Optional[str], lang: str, i18n_instance
+) -> Optional[InlineKeyboardMarkup]:
     if not support_link:
         return None
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
@@ -427,10 +588,11 @@ def get_user_banned_keyboard(support_link: Optional[str], lang: str,
 
 
 def get_channel_subscription_keyboard(
-        lang: str,
-        i18n_instance,
-        channel_link: Optional[str],
-        include_check_button: bool = True) -> Optional[InlineKeyboardMarkup]:
+    lang: str,
+    i18n_instance,
+    channel_link: Optional[str],
+    include_check_button: bool = True,
+) -> Optional[InlineKeyboardMarkup]:
     """
     Return keyboard with buttons to open the required channel and trigger a subscription re-check.
     """
@@ -453,7 +615,7 @@ def get_channel_subscription_keyboard(
         builder.button(
             text=_(key="channel_subscription_verify_button"),
             callback_data="channel_subscription:verify",
-            style='success'
+            style="success",
         )
         has_buttons = True
 
@@ -465,12 +627,13 @@ def get_channel_subscription_keyboard(
 
 
 def get_connect_and_main_keyboard(
-        lang: str,
-        i18n_instance,
-        settings: Settings,
-        config_link: Optional[str],
-        connect_button_url: Optional[str] = None,
-        preserve_message: bool = False) -> InlineKeyboardMarkup:
+    lang: str,
+    i18n_instance,
+    settings: Settings,
+    config_link: Optional[str],
+    connect_button_url: Optional[str] = None,
+    preserve_message: bool = False,
+) -> InlineKeyboardMarkup:
     """Keyboard with a connect button and a back to main menu button."""
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
@@ -484,9 +647,7 @@ def get_connect_and_main_keyboard(
             )
         )
     elif button_target:
-        builder.row(
-            InlineKeyboardButton(text=_("connect_button"), url=button_target)
-        )
+        builder.row(InlineKeyboardButton(text=_("connect_button"), url=button_target))
     else:
         builder.row(
             InlineKeyboardButton(
@@ -495,28 +656,39 @@ def get_connect_and_main_keyboard(
             )
         )
 
-    back_callback = "main_action:back_to_main_keep" if preserve_message else "main_action:back_to_main"
+    back_callback = (
+        "main_action:back_to_main_keep"
+        if preserve_message
+        else "main_action:back_to_main"
+    )
     builder.row(
         InlineKeyboardButton(
             text=_("back_to_main_menu_button"),
             callback_data=back_callback,
-            icon_custom_emoji_id="5296412923348952548"
+            icon_custom_emoji_id="5296412923348952548",
         )
     )
 
     return builder.as_markup()
 
 
-def get_payment_methods_manage_keyboard(lang: str, i18n_instance, has_card: bool) -> InlineKeyboardMarkup:
+def get_payment_methods_manage_keyboard(
+    lang: str, i18n_instance, has_card: bool
+) -> InlineKeyboardMarkup:
     """Deprecated in favor of get_payment_methods_list_keyboard. Kept for backward compatibility."""
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text=_(key="payment_method_bind_button"), callback_data="pm:bind")
+        InlineKeyboardButton(
+            text=_(key="payment_method_bind_button"), callback_data="pm:bind"
+        )
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
-                             icon_custom_emoji_id="5296412923348952548")
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
     )
     return builder.as_markup()
 
@@ -539,76 +711,123 @@ def get_payment_methods_list_keyboard(
     start = page * per_page
     end = start + per_page
     for pm_id, title in cards[start:end]:
-        builder.row(
-            InlineKeyboardButton(text=title, callback_data=f"pm:view:{pm_id}")
-        )
+        builder.row(InlineKeyboardButton(text=title, callback_data=f"pm:view:{pm_id}"))
 
     # Pagination controls if needed
     nav_buttons: List[InlineKeyboardButton] = []
     if start > 0:
-        nav_buttons.append(InlineKeyboardButton(text="⬅️", callback_data=f"pm:list:{page-1}"))
+        nav_buttons.append(
+            InlineKeyboardButton(text="⬅️", callback_data=f"pm:list:{page - 1}")
+        )
     if end < total:
-        nav_buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"pm:list:{page+1}"))
+        nav_buttons.append(
+            InlineKeyboardButton(text="➡️", callback_data=f"pm:list:{page + 1}")
+        )
     if nav_buttons:
         builder.row(*nav_buttons)
 
     # Bind new card and back
-    builder.row(InlineKeyboardButton(text=_(key="payment_method_bind_button"), callback_data="pm:bind"))
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="main_action:back_to_main",
-                                     icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="payment_method_bind_button"), callback_data="pm:bind"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
     return builder.as_markup()
 
 
-def get_payment_method_delete_confirm_keyboard(pm_id: str, lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_payment_method_delete_confirm_keyboard(
+    pm_id: str, lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text=_(key="yes_button"), callback_data=f"pm:delete:{pm_id}"),
-        InlineKeyboardButton(text=_(key="cancel_button"), callback_data=f"pm:view:{pm_id}"),
+        InlineKeyboardButton(
+            text=_(key="yes_button"), callback_data=f"pm:delete:{pm_id}"
+        ),
+        InlineKeyboardButton(
+            text=_(key="cancel_button"), callback_data=f"pm:view:{pm_id}"
+        ),
     )
     return builder.as_markup()
 
 
-def get_payment_method_details_keyboard(pm_id: str, lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_payment_method_details_keyboard(
+    pm_id: str, lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text=_(key="payment_method_tx_history_title"), callback_data=f"pm:history:{pm_id}")
+        InlineKeyboardButton(
+            text=_(key="payment_method_tx_history_title"),
+            callback_data=f"pm:history:{pm_id}",
+        )
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="payment_method_delete_button"), callback_data=f"pm:delete_confirm:{pm_id}")
+        InlineKeyboardButton(
+            text=_(key="payment_method_delete_button"),
+            callback_data=f"pm:delete_confirm:{pm_id}",
+        )
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
-                                     icon_custom_emoji_id="5296412923348952548")
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="pm:list:0",
+            icon_custom_emoji_id="5296412923348952548",
+        )
     )
     return builder.as_markup()
 
 
-def get_bind_url_keyboard(bind_url: str, lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_bind_url_keyboard(
+    bind_url: str, lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.button(text=_(key="payment_method_bind_button"), url=bind_url)
-    builder.button(text=_(key="back_to_main_menu_button"), callback_data="pm:manage",
-                                     icon_custom_emoji_id="5296412923348952548")
+    builder.button(
+        text=_(key="back_to_main_menu_button"),
+        callback_data="pm:manage",
+        icon_custom_emoji_id="5296412923348952548",
+    )
     builder.adjust(1)
     return builder.as_markup()
 
 
-def get_back_to_payment_methods_keyboard(lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_back_to_payment_methods_keyboard(
+    lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data="pm:list:0",
-                                     icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="pm:list:0",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
     return builder.as_markup()
 
 
-def get_back_to_payment_method_details_keyboard(pm_id: str, lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_back_to_payment_method_details_keyboard(
+    pm_id: str, lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     # Back one step: return to specific payment method details
-    builder.row(InlineKeyboardButton(text=_(key="back_to_main_menu_button"), callback_data=f"pm:view:{pm_id}",
-                                     icon_custom_emoji_id="5296412923348952548"))
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data=f"pm:view:{pm_id}",
+            icon_custom_emoji_id="5296412923348952548",
+        )
+    )
     return builder.as_markup()
 
 
@@ -616,19 +835,31 @@ def get_autorenew_cancel_keyboard(lang: str, i18n_instance) -> InlineKeyboardMar
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text=_(key="autorenew_disable_button"), callback_data="autorenew:cancel")
+        InlineKeyboardButton(
+            text=_(key="autorenew_disable_button"), callback_data="autorenew:cancel"
+        )
     )
     builder.row(
-        InlineKeyboardButton(text=_(key="menu_my_subscription_inline"), callback_data="main_action:my_subscription")
+        InlineKeyboardButton(
+            text=_(key="menu_my_subscription_inline"),
+            callback_data="main_action:my_subscription",
+        )
     )
     return builder.as_markup()
 
 
-def get_autorenew_confirm_keyboard(enable: bool, sub_id: int, lang: str, i18n_instance) -> InlineKeyboardMarkup:
+def get_autorenew_confirm_keyboard(
+    enable: bool, sub_id: int, lang: str, i18n_instance
+) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     builder.row(
-        InlineKeyboardButton(text=_(key="yes_button"), callback_data=f"autorenew:confirm:{sub_id}:{1 if enable else 0}"),
-        InlineKeyboardButton(text=_(key="no_button"), callback_data="main_action:my_subscription"),
+        InlineKeyboardButton(
+            text=_(key="yes_button"),
+            callback_data=f"autorenew:confirm:{sub_id}:{1 if enable else 0}",
+        ),
+        InlineKeyboardButton(
+            text=_(key="no_button"), callback_data="main_action:my_subscription"
+        ),
     )
     return builder.as_markup()

@@ -1,23 +1,31 @@
 import hashlib
 import logging
 import math
-from aiogram import Router, F, types, Bot
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from typing import Optional, Union
 from datetime import datetime
+from typing import Optional, Union
+
+from aiogram import Bot, F, Router, types
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.types import (
+    FSInputFile,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputMediaPhoto,
+    WebAppInfo,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from config.settings import Settings
 from bot.keyboards.inline.user_keyboards import (
-    get_subscription_options_keyboard,
-    get_back_to_main_menu_markup,
     get_autorenew_confirm_keyboard,
+    get_back_to_main_menu_markup,
+    get_subscription_options_keyboard,
 )
-from bot.services.subscription_service import SubscriptionService
-from bot.services.panel_api_service import PanelApiService
 from bot.middlewares.i18n import JsonI18n
+from bot.services.panel_api_service import PanelApiService
+from bot.services.subscription_service import SubscriptionService
+from config.settings import Settings
 from db.dal import subscription_dal, user_billing_dal
 from db.models import Subscription
 
@@ -50,7 +58,9 @@ async def display_subscription_options(
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
 
-    get_text = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    get_text = lambda key, **kwargs: (
+        i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    )
 
     if not i18n:
         err_msg = "Language service error."
@@ -58,7 +68,10 @@ async def display_subscription_options(
             try:
                 await event.answer(err_msg, show_alert=True)
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
         elif isinstance(event, types.Message):
             await event.answer(err_msg)
         return
@@ -66,7 +79,9 @@ async def display_subscription_options(
     currency_symbol_val = "RUB"
     traffic_packages = getattr(settings, "traffic_packages", {}) or {}
     stars_traffic_packages = getattr(settings, "stars_traffic_packages", {}) or {}
-    traffic_mode = bool(getattr(settings, "traffic_sale_mode", False) or stars_traffic_packages)
+    traffic_mode = bool(
+        getattr(settings, "traffic_sale_mode", False) or stars_traffic_packages
+    )
 
     options_are_stars = False
     if traffic_mode:
@@ -105,21 +120,36 @@ async def display_subscription_options(
             display_options = discounted_options
 
     if display_options:
-        text_content = get_text("select_traffic_package") if traffic_mode else get_text("select_subscription_period")
+        text_content = (
+            get_text("select_traffic_package")
+            if traffic_mode
+            else get_text("select_subscription_period")
+        )
         reply_markup = get_subscription_options_keyboard(
-            display_options, currency_symbol_val, current_lang, i18n, traffic_mode=traffic_mode
+            display_options,
+            currency_symbol_val,
+            current_lang,
+            i18n,
+            traffic_mode=traffic_mode,
         )
     else:
         text_content = get_text("no_subscription_options_available")
         reply_markup = get_back_to_main_menu_markup(current_lang, i18n)
 
-    target_message_obj = event.message if isinstance(event, types.CallbackQuery) else event
+    target_message_obj = (
+        event.message if isinstance(event, types.CallbackQuery) else event
+    )
     if not target_message_obj:
         if isinstance(event, types.CallbackQuery):
             try:
-                await event.answer(get_text("error_occurred_try_again"), show_alert=True)
+                await event.answer(
+                    get_text("error_occurred_try_again"), show_alert=True
+                )
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
         return
 
     if isinstance(event, types.CallbackQuery):
@@ -130,7 +160,10 @@ async def display_subscription_options(
         try:
             await event.answer()
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
     else:
         await target_message_obj.answer(text_content, reply_markup=reply_markup)
 
@@ -171,29 +204,44 @@ async def my_subscription_command_handler(
         await target.answer(get_text("error_service_unavailable"))
         return
 
-    active = await subscription_service.get_active_subscription_details(session, event.from_user.id)
+    photo = FSInputFile("images/subscription.png")
+    active = await subscription_service.get_active_subscription_details(
+        session, event.from_user.id
+    )
 
     if not active:
         text = get_text("subscription_not_active")
 
         buy_button = InlineKeyboardButton(
-            text=get_text("menu_subscribe_inline"), callback_data="main_action:subscribe"
+            text=get_text("menu_subscribe_inline"),
+            callback_data="main_action:subscribe",
         )
         back_markup = get_back_to_main_menu_markup(current_lang, i18n)
 
-        kb = InlineKeyboardMarkup(inline_keyboard=[[buy_button], *back_markup.inline_keyboard])
+        kb = InlineKeyboardMarkup(
+            inline_keyboard=[[buy_button], *back_markup.inline_keyboard]
+        )
 
         if isinstance(event, types.CallbackQuery):
             try:
                 await event.answer()
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
             try:
-                await event.message.edit_text(text, reply_markup=kb)
+                await event.message.edit_media(
+                    media=InputMediaPhoto(media=photo, caption=text), reply_markup=kb
+                )
             except Exception:
-                await event.message.answer(text, reply_markup=kb)
+                await event.message.edit_media(
+                    media=InputMediaPhoto(media=photo, caption=text), reply_markup=kb
+                )
         else:
-            await event.answer(text, reply_markup=kb)
+            await event.edit_media(
+                media=InputMediaPhoto(media=photo, caption=text), reply_markup=kb
+            )
         return
 
     end_date = active.get("end_date")
@@ -202,6 +250,7 @@ async def my_subscription_command_handler(
     config_link_display = active.get("config_link")
     connect_button_url = active.get("connect_button_url")
     config_link_value = config_link_display or get_text("config_link_not_available")
+
     def _fmt_gb(val: Optional[float]) -> str:
         if val is None:
             return get_text("traffic_na")
@@ -210,7 +259,10 @@ async def my_subscription_command_handler(
                 val_gb = float(val) / (2**30)
                 return f"{val_gb:.2f} GB"
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return str(val)
 
     if traffic_mode:
@@ -223,11 +275,18 @@ async def my_subscription_command_handler(
             remaining_val = max(0, float(limit_val) - float(used_val))
             remaining_display = _fmt_gb(remaining_val)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         text = get_text(
             "my_traffic_details",
-            status=active.get("status_from_panel", get_text("status_active")).capitalize(),
-            end_date=end_date.strftime("%Y-%m-%d") if end_date else get_text("traffic_no_expiry"),
+            status=active.get(
+                "status_from_panel", get_text("status_active")
+            ).capitalize(),
+            end_date=end_date.strftime("%Y-%m-%d")
+            if end_date
+            else get_text("traffic_no_expiry"),
             traffic_limit=limit_display,
             traffic_used=used_display,
             traffic_left=remaining_display,
@@ -238,38 +297,56 @@ async def my_subscription_command_handler(
             "my_subscription_details",
             end_date=end_date.strftime("%Y-%m-%d") if end_date else "N/A",
             days_left=max(0, days_left),
-            status=active.get("status_from_panel", get_text("status_active")).capitalize(),
+            status=active.get(
+                "status_from_panel", get_text("status_active")
+            ).capitalize(),
             config_link=config_link_value,
-            traffic_limit=(f"{active['traffic_limit_bytes'] / 2**30:.2f} GB" if active.get("traffic_limit_bytes") else get_text("traffic_unlimited")),
+            traffic_limit=(
+                f"{active['traffic_limit_bytes'] / 2**30:.2f} GB"
+                if active.get("traffic_limit_bytes")
+                else get_text("traffic_unlimited")
+            ),
             traffic_used=(
-                f"{active['traffic_used_bytes'] / 2**30:.2f} GB" if active.get("traffic_used_bytes") is not None else get_text("traffic_na")
+                f"{active['traffic_used_bytes'] / 2**30:.2f} GB"
+                if active.get("traffic_used_bytes") is not None
+                else get_text("traffic_na")
             ),
         )
 
     base_markup = get_back_to_main_menu_markup(current_lang, i18n)
     kb = base_markup.inline_keyboard
     try:
-        local_sub = await subscription_dal.get_active_subscription_by_user_id(session, event.from_user.id)
+        local_sub = await subscription_dal.get_active_subscription_by_user_id(
+            session, event.from_user.id
+        )
         # Build rows to prepend above the base "back" markup
         prepend_rows = []
 
         # 1) Mini-app connect button on top if enabled, otherwise fall back to config link URL
         if settings.SUBSCRIPTION_MINI_APP_URL:
-            prepend_rows.append([
-                InlineKeyboardButton(
-                    text=get_text("connect_button"),
-                    web_app=WebAppInfo(url=settings.SUBSCRIPTION_MINI_APP_URL),
-                )
-            ])
+            prepend_rows.append(
+                [
+                    InlineKeyboardButton(
+                        text=get_text("connect_button"),
+                        web_app=WebAppInfo(url=settings.SUBSCRIPTION_MINI_APP_URL),
+                        icon_custom_emoji_id="5330467989621872306",
+                        style="primary",
+                    )
+                ]
+            )
         else:
             cfg_link_val = connect_button_url or config_link_display
             if cfg_link_val:
-                prepend_rows.append([
-                    InlineKeyboardButton(
-                        text=get_text("connect_button"),
-                        url=cfg_link_val,
-                    )
-                ])
+                prepend_rows.append(
+                    [
+                        InlineKeyboardButton(
+                            text=get_text("connect_button"),
+                            url=cfg_link_val,
+                            icon_custom_emoji_id="5330467989621872306",
+                            style="primary",
+                        )
+                    ]
+                )
 
         if settings.MY_DEVICES_SECTION_ENABLED:
             max_devices_value = active.get("max_devices")
@@ -279,7 +356,7 @@ async def my_subscription_command_handler(
                     max_devices_int = int(max_devices_value)
                     if max_devices_int >= 0:
                         max_devices_display = str(max_devices_int)
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     max_devices_display = str(max_devices_value)
             current_devices_display = "?"
             user_uuid = active.get("user_id")
@@ -315,44 +392,71 @@ async def my_subscription_command_handler(
                 current_devices=current_devices_display,
                 max_devices=max_devices_display,
             )
-            prepend_rows.append([
-                InlineKeyboardButton(
-                    text=devices_button_text,
-                    callback_data="main_action:my_devices",
-                )
-            ])
+            prepend_rows.append(
+                [
+                    InlineKeyboardButton(
+                        text=devices_button_text,
+                        callback_data="main_action:my_devices",
+                        icon_custom_emoji_id="5330418545958362888",
+                    )
+                ]
+            )
 
         # 2) Auto-renew toggle (YooKassa only)
-        if not traffic_mode and local_sub and local_sub.provider == "yookassa" and settings.yookassa_autopayments_active:
+        if (
+            not traffic_mode
+            and local_sub
+            and local_sub.provider == "yookassa"
+            and settings.yookassa_autopayments_active
+        ):
             toggle_text = (
-                get_text("autorenew_disable_button") if local_sub.auto_renew_enabled else get_text("autorenew_enable_button")
+                get_text("autorenew_disable_button")
+                if local_sub.auto_renew_enabled
+                else get_text("autorenew_enable_button")
             )
-            prepend_rows.append([
-                InlineKeyboardButton(
-                    text=toggle_text,
-                    callback_data=f"toggle_autorenew:{local_sub.subscription_id}:{1 if not local_sub.auto_renew_enabled else 0}",
-                )
-            ])
+            prepend_rows.append(
+                [
+                    InlineKeyboardButton(
+                        text=toggle_text,
+                        callback_data=f"toggle_autorenew:{local_sub.subscription_id}:{1 if not local_sub.auto_renew_enabled else 0}",
+                    )
+                ]
+            )
 
         # 3) Payment methods management (when autopayments enabled)
         if not traffic_mode and settings.yookassa_autopayments_active:
-            prepend_rows.append([
-                InlineKeyboardButton(text=get_text("payment_methods_manage_button"), callback_data="pm:manage")
-            ])
+            prepend_rows.append(
+                [
+                    InlineKeyboardButton(
+                        text=get_text("payment_methods_manage_button"),
+                        callback_data="pm:manage",
+                    )
+                ]
+            )
 
         if prepend_rows:
             kb = prepend_rows + kb
     except Exception as exc:
-        logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+        logging.debug(
+            "Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc
+        )
     markup = InlineKeyboardMarkup(inline_keyboard=kb)
 
     if isinstance(event, types.CallbackQuery):
         try:
             await event.answer()
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         try:
-            await event.message.edit_text(text, reply_markup=markup, parse_mode="HTML", disable_web_page_preview=True)
+            await event.message.edit_media(
+                media=InputMediaPhoto(media=photo, caption=text),
+                reply_markup=markup,
+                parse_mode="HTML",
+                disable_web_page_preview=True,
+            )
         except Exception:
             await bot.send_message(
                 chat_id=target.chat.id,
@@ -362,7 +466,9 @@ async def my_subscription_command_handler(
                 disable_web_page_preview=True,
             )
     else:
-        await target.answer(text, reply_markup=markup, parse_mode="HTML", disable_web_page_preview=True)
+        await target.answer(
+            text, reply_markup=markup, parse_mode="HTML", disable_web_page_preview=True
+        )
 
 
 @router.callback_query(F.data == "main_action:my_devices")
@@ -388,33 +494,48 @@ async def my_devices_command_handler(
     if not settings.MY_DEVICES_SECTION_ENABLED:
         if isinstance(event, types.CallbackQuery):
             try:
-                await event.answer(get_text("my_devices_feature_disabled"), show_alert=True)
+                await event.answer(
+                    get_text("my_devices_feature_disabled"), show_alert=True
+                )
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
         else:
             await target.answer(get_text("my_devices_feature_disabled"))
         return
 
     # TODO: context?
-    active = await subscription_service.get_active_subscription_details(session, event.from_user.id)
+    active = await subscription_service.get_active_subscription_details(
+        session, event.from_user.id
+    )
     if not active or not active.get("user_id"):
         message = get_text("subscription_not_active")
         if isinstance(event, types.CallbackQuery):
             try:
                 await event.answer(message, show_alert=True)
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
         else:
             await target.answer(message)
         return
 
-    devices = await panel_service.get_user_devices(active.get("user_id")) if active else None
+    devices = (
+        await panel_service.get_user_devices(active.get("user_id")) if active else None
+    )
     if not devices:
         if isinstance(event, types.CallbackQuery):
             try:
                 await event.answer(get_text("no_devices_found"), show_alert=True)
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
         else:
             await target.answer(get_text("no_devices_found"))
         return
@@ -432,43 +553,76 @@ async def my_devices_command_handler(
             max_devices_int = int(max_devices_value)
             if max_devices_int >= 0:
                 max_devices_display = str(max_devices_int)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             max_devices_display = str(max_devices_value)
 
     if not devices_list_raw:
-        text = get_text("no_devices_details_found_message", max_devices=max_devices_display)
+        text = get_text(
+            "no_devices_details_found_message", max_devices=max_devices_display
+        )
     else:
         devices_list = []
         current_devices = len(devices_list_raw)
         for index, device in enumerate(devices_list_raw, start=1):
-            device_model = device.get('deviceModel') or None
-            platform = device.get('platform') or None
-            user_agent = device.get('userAgent') or None
-            os_version = device.get('osVersion') or None
-            created_at = device.get('createdAt')
-            hwid = device.get('hwid')
+            device_model = device.get("deviceModel") or None
+            platform = device.get("platform") or None
+            user_agent = device.get("userAgent") or None
+            os_version = device.get("osVersion") or None
+            created_at = device.get("createdAt")
+            hwid = device.get("hwid")
             try:
-                created_at_str = datetime.fromisoformat(created_at).strftime("%d.%m.%Y %H:%M") if created_at else "-"
+                created_at_str = (
+                    datetime.fromisoformat(created_at).strftime("%d.%m.%Y %H:%M")
+                    if created_at
+                    else "-"
+                )
             except Exception:
                 created_at_str = str(created_at)
 
-            device_details = get_text("device_details", index=index, device_model=device_model, platform=platform, os_version=os_version, created_at_str=created_at_str, user_agent=user_agent, hwid=hwid)
+            device_details = get_text(
+                "device_details",
+                index=index,
+                device_model=device_model,
+                platform=platform,
+                os_version=os_version,
+                created_at_str=created_at_str,
+                user_agent=user_agent,
+                hwid=hwid,
+            )
             devices_list.append(device_details)
 
-        text = get_text("my_devices_details", devices="\n\n".join(devices_list), current_devices=current_devices, max_devices=max_devices_display)
+        text = get_text(
+            "my_devices_details",
+            devices="\n\n".join(devices_list),
+            current_devices=current_devices,
+            max_devices=max_devices_display,
+        )
 
-    base_markup = get_back_to_main_menu_markup(current_lang, i18n, callback_data="main_action:my_subscription")
+    base_markup = get_back_to_main_menu_markup(
+        current_lang, i18n, callback_data="main_action:my_subscription"
+    )
     kb = base_markup.inline_keyboard
 
     devices_kb = []
     for index, device in enumerate(devices_list_raw, start=1):
-        hwid = device.get('hwid')
+        hwid = device.get("hwid")
         if not hwid:
             continue
-        device_button_text = get_text("disconnect_device_button", hwid=_shorten_hwid_for_display(hwid), index=index)
+        device_button_text = get_text(
+            "disconnect_device_button",
+            hwid=_shorten_hwid_for_display(hwid),
+            index=index,
+        )
         hwid_token = _hwid_callback_token(hwid)
 
-        devices_kb.append([InlineKeyboardButton(text=device_button_text, callback_data=f"disconnect_device:{hwid_token}")])
+        devices_kb.append(
+            [
+                InlineKeyboardButton(
+                    text=device_button_text,
+                    callback_data=f"disconnect_device:{hwid_token}",
+                )
+            ]
+        )
     kb = devices_kb + kb
     markup = InlineKeyboardMarkup(inline_keyboard=kb)
 
@@ -476,7 +630,10 @@ async def my_devices_command_handler(
         try:
             await event.answer()
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         try:
             await event.message.edit_text(text, reply_markup=markup)
         except Exception:
@@ -497,13 +654,20 @@ async def disconnect_device_handler(
 ):
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
-    get_text = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    get_text = lambda key, **kwargs: (
+        i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    )
 
     if not settings.MY_DEVICES_SECTION_ENABLED:
         try:
-            await callback.answer(get_text("my_devices_feature_disabled"), show_alert=True)
+            await callback.answer(
+                get_text("my_devices_feature_disabled"), show_alert=True
+            )
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
 
     try:
@@ -512,10 +676,15 @@ async def disconnect_device_handler(
         try:
             await callback.answer(get_text("error_try_again"), show_alert=True)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
 
-    active = await subscription_service.get_active_subscription_details(session, callback.from_user.id)
+    active = await subscription_service.get_active_subscription_details(
+        session, callback.from_user.id
+    )
     if not active or not active.get("user_id"):
         await callback.answer(get_text("subscription_not_active"), show_alert=True)
         return
@@ -550,8 +719,12 @@ async def disconnect_device_handler(
     try:
         await callback.answer(get_text("device_disconnected"))
     except Exception as exc:
-        logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
-    await my_devices_command_handler(callback, i18n_data, settings, panel_service, subscription_service, session, bot)
+        logging.debug(
+            "Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc
+        )
+    await my_devices_command_handler(
+        callback, i18n_data, settings, panel_service, subscription_service, session, bot
+    )
 
 
 @router.callback_query(F.data.startswith("toggle_autorenew:"))
@@ -566,7 +739,9 @@ async def toggle_autorenew_handler(
 ):
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
-    get_text = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    get_text = lambda key, **kwargs: (
+        i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    )
 
     try:
         _, payload = callback.data.split(":", 1)
@@ -577,7 +752,10 @@ async def toggle_autorenew_handler(
         try:
             await callback.answer(get_text("error_try_again"), show_alert=True)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
 
     sub = await session.get(Subscription, sub_id)
@@ -588,16 +766,27 @@ async def toggle_autorenew_handler(
         await callback.answer(get_text("error_try_again"), show_alert=True)
         return
     if enable:
-        has_saved_card = await user_billing_dal.user_has_saved_payment_method(session, callback.from_user.id)
+        has_saved_card = await user_billing_dal.user_has_saved_payment_method(
+            session, callback.from_user.id
+        )
         if not has_saved_card:
             try:
-                await callback.answer(get_text("autorenew_enable_requires_card"), show_alert=True)
+                await callback.answer(
+                    get_text("autorenew_enable_requires_card"), show_alert=True
+                )
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
             return
 
     # Show confirmation popup and inline buttons
-    confirm_text = get_text("autorenew_confirm_enable") if enable else get_text("autorenew_confirm_disable")
+    confirm_text = (
+        get_text("autorenew_confirm_enable")
+        if enable
+        else get_text("autorenew_confirm_disable")
+    )
     kb = get_autorenew_confirm_keyboard(enable, sub.subscription_id, current_lang, i18n)
     try:
         await callback.message.edit_text(confirm_text, reply_markup=kb)
@@ -605,11 +794,16 @@ async def toggle_autorenew_handler(
         try:
             await callback.message.answer(confirm_text, reply_markup=kb)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
     try:
         await callback.answer()
     except Exception as exc:
-        logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+        logging.debug(
+            "Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc
+        )
     return
 
 
@@ -625,7 +819,9 @@ async def confirm_autorenew_handler(
 ):
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
-    get_text = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    get_text = lambda key, **kwargs: (
+        i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    )
 
     try:
         _, _, sub_id_str, enable_str = callback.data.split(":", 3)
@@ -635,7 +831,10 @@ async def confirm_autorenew_handler(
         try:
             await callback.answer(get_text("error_try_again"), show_alert=True)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
 
     sub = await session.get(Subscription, sub_id)
@@ -646,25 +845,49 @@ async def confirm_autorenew_handler(
         await callback.answer(get_text("error_try_again"), show_alert=True)
         return
     if enable:
-        has_saved_card = await user_billing_dal.user_has_saved_payment_method(session, callback.from_user.id)
+        has_saved_card = await user_billing_dal.user_has_saved_payment_method(
+            session, callback.from_user.id
+        )
         if not has_saved_card:
             try:
-                await callback.answer(get_text("autorenew_enable_requires_card"), show_alert=True)
+                await callback.answer(
+                    get_text("autorenew_enable_requires_card"), show_alert=True
+                )
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
             try:
-                await my_subscription_command_handler(callback, i18n_data, settings, panel_service, subscription_service, session, bot)
+                await my_subscription_command_handler(
+                    callback,
+                    i18n_data,
+                    settings,
+                    panel_service,
+                    subscription_service,
+                    session,
+                    bot,
+                )
             except Exception as exc:
-                logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+                logging.debug(
+                    "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                    exc,
+                )
             return
 
-    await subscription_dal.update_subscription(session, sub.subscription_id, {"auto_renew_enabled": enable})
+    await subscription_dal.update_subscription(
+        session, sub.subscription_id, {"auto_renew_enabled": enable}
+    )
     await session.commit()
     try:
         await callback.answer(get_text("subscription_autorenew_updated"))
     except Exception as exc:
-        logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
-    await my_subscription_command_handler(callback, i18n_data, settings, panel_service, subscription_service, session, bot)
+        logging.debug(
+            "Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc
+        )
+    await my_subscription_command_handler(
+        callback, i18n_data, settings, panel_service, subscription_service, session, bot
+    )
 
 
 @router.callback_query(F.data == "autorenew:cancel")
@@ -679,30 +902,47 @@ async def autorenew_cancel_from_webhook_button(
 ):
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
-    get_text = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    get_text = lambda key, **kwargs: (
+        i18n.gettext(current_lang, key, **kwargs) if i18n else key
+    )
 
     # Disable auto-renew on the active subscription
     from db.dal import subscription_dal
-    sub = await subscription_dal.get_active_subscription_by_user_id(session, callback.from_user.id)
+
+    sub = await subscription_dal.get_active_subscription_by_user_id(
+        session, callback.from_user.id
+    )
     if not sub:
         try:
             await callback.answer(get_text("subscription_not_active"), show_alert=True)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
     if sub.provider != "yookassa":
         try:
             await callback.answer(get_text("error_try_again"), show_alert=True)
         except Exception as exc:
-            logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
+            logging.debug(
+                "Suppressed exception in bot/handlers/user/subscription/core.py: %s",
+                exc,
+            )
         return
-    await subscription_dal.update_subscription(session, sub.subscription_id, {"auto_renew_enabled": False})
+    await subscription_dal.update_subscription(
+        session, sub.subscription_id, {"auto_renew_enabled": False}
+    )
     await session.commit()
     try:
         await callback.answer(get_text("subscription_autorenew_updated"))
     except Exception as exc:
-        logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
-    await my_subscription_command_handler(callback, i18n_data, settings, panel_service, subscription_service, session, bot)
+        logging.debug(
+            "Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc
+        )
+    await my_subscription_command_handler(
+        callback, i18n_data, settings, panel_service, subscription_service, session, bot
+    )
 
 
 @router.message(Command("connect"))
@@ -716,4 +956,6 @@ async def connect_command_handler(
     bot: Bot,
 ):
     logging.info(f"User {message.from_user.id} used /connect command.")
-    await my_subscription_command_handler(message, i18n_data, settings, panel_service, subscription_service, session, bot)
+    await my_subscription_command_handler(
+        message, i18n_data, settings, panel_service, subscription_service, session, bot
+    )
