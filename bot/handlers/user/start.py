@@ -23,6 +23,7 @@ from bot.keyboards.inline.user_keyboards import (
     get_language_selection_keyboard,
     get_lk_keyboard,
     get_main_menu_inline_keyboard,
+    get_proxy_keyboard
 )
 from bot.middlewares.i18n import JsonI18n
 from bot.services.panel_api_service import PanelApiService
@@ -769,6 +770,47 @@ async def info_callback_handler(
         await event.answer()
     else:
         await target_message_obj.answer_photo(photo, reply_markup=reply_markup)
+
+
+@router.callback_query(F.data == "main_action:proxy")
+async def proxy_callback_handler(
+    event: Union[types.Message, types.CallbackQuery],
+    i18n_data: dict,
+    settings: Settings,
+):
+    current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
+    i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
+    _ = lambda key, **kwargs: i18n.gettext(current_lang, key, **kwargs) if i18n else key
+
+    target_message_obj = (
+        event.message if isinstance(event, types.CallbackQuery) else event
+    )
+    if not target_message_obj:
+        if isinstance(event, types.CallbackQuery):
+            await event.answer(_("error_occurred_try_again"), show_alert=True)
+        return
+
+    photo = FSInputFile("images/mtproto.png")
+    caption = _("proxy_menu_text")
+
+    reply_markup = get_proxy_keyboard(i18n, settings, current_lang)
+
+    if isinstance(event, types.CallbackQuery):
+        if event.message:
+            try:
+                await event.message.edit_media(
+                    media=InputMediaPhoto(media=photo, caption=caption),
+                    reply_markup=reply_markup,
+                )
+            except Exception:
+                await target_message_obj.answer_photo(
+                    photo, caption=caption, reply_markup=reply_markup
+                )
+        await event.answer()
+    else:
+        await target_message_obj.answer_photo(
+            photo, caption=caption, reply_markup=reply_markup
+        )
 
 
 @router.callback_query(F.data == "main_action:about")

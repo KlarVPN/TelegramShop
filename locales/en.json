@@ -10,9 +10,12 @@
   "menu_channel_button": "Telegram Channel",
   "menu_my_subscription_inline": "Subscription",
   "menu_lk_inline": "Cabinet",
+  "menu_reviews_inline": "Reviews",
   "menu_about_inline": "About us",
+  "menu_tg_proxy": "Proxy for Telegram",
   "menu_instruction_inline": "Instructions",
   "about_text": "Who are we?\n\n<tg-emoji emoji-id=\"5296364750995758641\">🕸</tg-emoji> <b>KLAR</b> — VPN-сервис с премиум-доступом к свободному интернету.\n\nБазируемся на проверенных протоколах: <b>VLESS, TROJAN, SHADOWSOCKS</b>\n\nОбходим блокировки, скрываем Ваш трафик, предоставляем быстрый и надежный доступ к интернету.",
+  "proxy_menu_text": "<tg-emoji emoji-id=\"5355019710607956483\">\uD83D\uDD17</tg-emoji> <b>Прокси для Telegram</b>\n\n Если Telegram работает медленно или иногда не открывается — подключите один из наших прокси.\n\nПросто нажмите на любой из них:\n<tg-emoji emoji-id=\"5352537000467535839\">\uD83D\uDD3B</tg-emoji> Telegram сам добавит прокси в настройки\n<tg-emoji emoji-id=\"5352537000467535839\">\uD83D\uDD3B</tg-emoji> Соединение установится автоматически\n\n<tg-emoji emoji-id=\"5352924466647179095\">⚠\uFE0F</tg-emoji> <b>Важно:</b> Мы регулярно обновляем список.\nЧтобы всегда иметь рабочие прокси — <a href=\"https://klar.icu/proxy\">сохраните ссылку на наш сайт.</a>",
   "no_subscription_options_available": "Subscription issuance is not configured by the bot administrator",
   "menu_referral_inline": "Referrals",
   "referral_no_bonuses_configured": "Sorry, the referral program is currently disabled",
@@ -525,5 +528,11 @@
   "no_bonus_placeholder": "none",
   "payment_successful_with_promo_full": "✅ Payment successful!\nYour {months}-month subscription has been extended by {bonus_days} bonus days via promo code and is active until {end_date}.\n\nConnection key:\n<code>{config_link}</code>\n\nTo connect, open the link and follow the instructions 👇",
   "system_or_unknown_user": "System/unknown user",
-  "free_kassa_order_full": "Order #{order_id} from {date}\n\n"
+  "free_kassa_order_full": "Order #{order_id} from {date}\n\n",
+  "proxy_russia": "Russia",
+  "proxy_germany": "Germany",
+  "proxy_netherlands": "Netherlands",
+  "proxy_finland": "Finland",
+  "proxy_poland": "Poland",
+  "proxy_sweden": "Sweden"
 }

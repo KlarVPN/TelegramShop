@@ -10,9 +10,12 @@
   "menu_channel_button": "Канал",
   "menu_my_subscription_inline": "Подписка",
   "menu_lk_inline": "Личный кабинет",
+  "menu_reviews_inline": "Отзывы",
   "menu_about_inline": "О нас",
+  "menu_tg_proxy": "Прокси для Телеграм",
   "menu_instruction_inline": "Инструкции",
   "about_text": "Кто мы?\n\n<tg-emoji emoji-id=\"5296364750995758641\">🕸</tg-emoji> <b>KLAR</b> — VPN-сервис с премиум-доступом к свободному интернету.\n\nБазируемся на проверенных <b>протоколах и транспортах</b>.\n\nОбходим блокировки, скрываем Ваш трафик, предоставляем быстрый и надежный доступ к интернету.",
+  "proxy_menu_text": "<tg-emoji emoji-id=\"5355019710607956483\">\uD83D\uDD17</tg-emoji> <b>Прокси для Telegram</b>\n\n Если Telegram работает медленно или иногда не открывается — <b>подключите один из наших прокси.</b>\n\nПросто нажмите на любой из них:\n<tg-emoji emoji-id=\"5352537000467535839\">\uD83D\uDD3B</tg-emoji> Telegram сам добавит прокси в настройки\n<tg-emoji emoji-id=\"5352537000467535839\">\uD83D\uDD3B</tg-emoji> Соединение установится автоматически\n\n<tg-emoji emoji-id=\"5352924466647179095\">⚠\uFE0F</tg-emoji> <b>Важно:</b> Мы регулярно обновляем список.\nЧтобы всегда иметь рабочие прокси — <a href=\"https://klar.icu/proxy\">сохраните ссылку на наш сайт.</a>",
   "no_subscription_options_available": "Выдача подписки не настроена администратором бота",
   "menu_referral_inline": "Рефералка",
   "referral_no_bonuses_configured": "Извините, реферальная программа в данный момент отключена",
@@ -526,5 +529,11 @@
   "no_bonus_placeholder": "нет",
   "payment_successful_with_promo_full": "✅ Оплата прошла успешно!\nВаша подписка на {months} мес. продлена на {bonus_days} бонусных дней по промокоду и активна до {end_date}.\n\nКлюч подключения:\n<code>{config_link}</code>\n\nЧтобы подключиться, перейдите по ссылке и следуйте инструкции 👇",
   "system_or_unknown_user": "Система/неизвестный пользователь",
-  "free_kassa_order_full": "Заказ №{order_id} от {date}\n\n"
+  "free_kassa_order_full": "Заказ №{order_id} от {date}\n\n",
+  "proxy_russia": "Россия",
+  "proxy_germany": "Германия",
+  "proxy_netherlands": "Нидерланды",
+  "proxy_finland": "Финляндия",
+  "proxy_poland": "Польша",
+  "proxy_sweden": "Швеция"
 }

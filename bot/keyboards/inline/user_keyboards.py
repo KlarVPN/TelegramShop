@@ -47,13 +47,89 @@ def get_main_menu_inline_keyboard(
         )
 
     builder.row(*row)
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_tg_proxy"),
+            callback_data="main_action:proxy",
+            icon_custom_emoji_id="5355019710607956483",
+        )
+    )
+
     builder.row(
         InlineKeyboardButton(
             text=_(key="menu_language_settings_inline"),
             callback_data="main_action:language",
-            icon_custom_emoji_id="5296375222126026745"
-            if lang == "ru"
-            else "5296430537009831302",
+            icon_custom_emoji_id=(
+                "5296375222126026745" if lang == "ru" else
+                "5296430537009831302" if lang == "en" else
+                "5352538512296023102"
+            )
+        )
+    )
+
+    return builder.as_markup()
+
+
+def get_proxy_keyboard(
+        i18n_instance,
+        settings: Settings,
+        current_lang: str
+) -> InlineKeyboardMarkup:
+    _ = lambda key, **kwargs: i18n_instance.gettext(current_lang, key, **kwargs)
+
+    proxies = [
+        {
+            "name": "proxy_russia",
+            "url": "https://t.me/proxy?server=sus.veil.watch&port=443&secret=ee434eb6b1335ef8d34a51a53df1d1f01d62726f777365722e79616e6465782e7275",
+            "emoji_id": "5296375222126026745"
+        },
+        {
+            "name": "proxy_germany",
+            "url": "https://t.me/proxy?server=mtd.klarvpn.dev&port=443&secret=eee33f1d03af9c743d8f353f46f8a867f97777772e6d6963726f736f66742e636f6d",
+            "emoji_id": "5298914385316582114"
+        },
+        {
+            "name": "proxy_netherlands",
+            "url": "https://t.me/proxy?server=mtn.klarvpn.dev&port=443&secret=eee33f1d03af9c743d8f353f46f8a867f97777772e6d6963726f736f66742e636f6d",
+            "emoji_id": "5298504396328440599"
+        },
+        {
+            "name": "proxy_finland",
+            "url": "https://t.me/proxy?server=rizz.veil.watch&port=443&secret=eede4168f3ab6f28055531d1694abdc8ff6769746875622e636f6d",
+            "emoji_id": "5298625303952793880"
+        },
+        {
+            "name": "proxy_poland",
+            "url": "https://t.me/proxy?server=pepe.veil.watch&port=443&secret=ee2ac3374495a1fc5cdd420e171a9842c96769746875622e636f6d",
+            "emoji_id": "5296269510095969437"
+        },
+        {
+            "name": "proxy_sweden",
+            "url": "https://t.me/proxy?server=cheburnet.veil.watch&port=443&secret=ee2fae6b8af5404b7d04d1f85851239c436769746875622e636f6d",
+            "emoji_id": "5298861299520806249"
+        },
+    ]
+
+    builder = InlineKeyboardBuilder()
+
+    for i, proxy in enumerate(proxies):
+        button = InlineKeyboardButton(
+            text=_(key=proxy['name']),
+            url=proxy['url'],
+            icon_custom_emoji_id=proxy['emoji_id'],
+        )
+
+        builder.add(button)
+
+        if (i + 1) % 3 == 0:
+            builder.adjust(3)  # или builder.row() если хочешь вручную
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="back_to_main_menu_button"),
+            callback_data="main_action:back_to_main",
+            icon_custom_emoji_id="5296412923348952548",
         )
     )
 
@@ -74,7 +150,9 @@ def get_info_keyboard(
         )
     )
 
-    builder.row(
+    row = []
+
+    row.append(
         InlineKeyboardButton(
             text=_(key="menu_instruction_inline"),
             callback_data="main_action:instruction",
@@ -82,6 +160,15 @@ def get_info_keyboard(
         )
     )
 
+    row.append(
+        InlineKeyboardButton(
+            text=_(key="menu_reviews_inline"),
+            url="https://t.me/klar_reviews",
+            icon_custom_emoji_id="5355171000830958183",
+        )
+    )
+
+    builder.row(*row)
     builder.row(
         InlineKeyboardButton(
             text=_(key="back_to_main_menu_button"),
@@ -279,7 +366,13 @@ def get_language_selection_keyboard(
         style="success" if current_lang == "ru" else None,
         icon_custom_emoji_id="5296375222126026745",
     )
-    builder.row(en_button, ru_button)
+    ch_button = InlineKeyboardButton(
+        text="中文",
+        callback_data="set_lang_ch",
+        style="success" if current_lang == "ch" else None,
+        icon_custom_emoji_id="5352538512296023102",
+    )
+    builder.row(en_button, ru_button, ch_button)
 
     builder.row(
         InlineKeyboardButton(
