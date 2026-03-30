@@ -1,17 +1,13 @@
 services:
-  klar-rm-shop-db:
+  remnawave-tg-shop-db:
     image: postgres:17
-    container_name: klar-rm-shop-db
+    container_name: remnawave-tg-shop-db
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_DB}
     ports:
       - "5433:5432"
     volumes:
-      - klar-rm-shop-db-data:/var/lib/postgresql/data
+      - remnawave-tg-shop-db-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
@@ -20,5 +16,5 @@ services:
       retries: 20
 
 volumes:
-  klar-rm-shop-db-data:
-    name: klar-rm-shop-db-data
+  remnawave-tg-shop-db-data:
+    name: remnawave-tg-shop-db-data
