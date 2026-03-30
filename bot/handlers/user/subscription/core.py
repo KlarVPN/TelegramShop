@@ -553,7 +553,7 @@ async def my_devices_command_handler(
             max_devices_int = int(max_devices_value)
             if max_devices_int >= 0:
                 max_devices_display = str(max_devices_int)
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             max_devices_display = str(max_devices_value)
 
     if not devices_list_raw:
